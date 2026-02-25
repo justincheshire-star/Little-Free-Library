@@ -29,7 +29,13 @@ Corpora are organized by domain. Each is pre-chunked, pre-embedded, and ready to
 | Art History | 🗂️ Planned | — | CC-BY-SA 4.0 |
 | Mathematics | 🗂️ Planned | — | CC-BY-SA 4.0 |
 
-> All corpora are released under **Creative Commons CC-BY-SA 4.0**. Attribution required. Share-alike required. Commercial resale prohibited.
+> Corpora are published under a tiered model based on source licensing. See the [Licensing Guide](docs/licensing-guide.md) for details.
+>
+> | Tier | Description |
+> |------|-------------|
+> | **Tier 1 — Redistributable** | Source allows redistribution. Chunks + embeddings published openly under CC-BY-SA 4.0. |
+> | **Tier 2 — Recipe Only** | Source restricts redistribution. Manifests, scrapers, and chunking rules published. You build locally. |
+> | **Tier 3 — Reference Only** | Pointers and guidance only. No automation or redistribution. |
 
 ---
 
@@ -87,10 +93,14 @@ domain: programming
 subdomain: python
 source: https://docs.python.org/3/tutorial/errors.html
 source_license: PSF-2.0
+source_id: python_docs
+source_path: tutorial/errors.md
+retrieved_at: 2026-02-24
 verified: documented
 importance: 0.8
 tags: [python, exceptions, error-handling]
 version: 1.0.0
+content_hash: sha256:4b3a2f...
 ---
 ```
 
@@ -114,13 +124,16 @@ The library grows because people add to it. If you have expertise in a domain an
 4. Populate `CORPUS.md` and `sources.json` with provenance
 5. Open a PR — community review will validate quality before merge
 
-**Before contributing, check that your sources are compatible with CC-BY-SA 4.0.** See `docs/licensing-guide.md` for a breakdown of common source licenses and compatibility.
+**Before contributing, check that your sources are compatible with the tier system.** See `docs/licensing-guide.md` for a breakdown of common source licenses, tier assignment, and attribution requirements.
+
+LFL never relicenses third-party content. Every corpus packages content with its original license terms, attribution, and provenance intact. The compliance gate in CI will reject any source with an ambiguous or missing license.
 
 ### Quality Standards
 
 - Sources must be authoritative (official docs, peer-reviewed work, established references)
 - No AI-generated content as source material — corpora must originate from authoritative human sources. AI may be used as a transcription or description layer (e.g. converting diagrams or images to text) provided the underlying source remains authoritative and is documented in provenance metadata
-- Every chunk must have complete provenance metadata
+- Every chunk must have complete provenance metadata including `content_hash: sha256:...` for idempotency
+- Every source must have an explicit `sources/<source_id>.json` with license, redistribution tier, and attribution fields — CI will hard-fail on missing or ambiguous entries
 - Chunks should be self-contained and meaningful out of context
 
 ---
@@ -146,9 +159,16 @@ Low-rated or flagged chunks are reviewed and pruned in each version release.
 
 ## Put This Knowledge to Work
 
-Little Free Library is built to work seamlessly with **[LocalAgent Studio](https://github.com/little-free-library/localagent-studio)** — a native multi-agent AI environment with hybrid RAG, local LLM inference, and sprint-based development workflows.
+Little Free Library corpora are format-agnostic and framework-agnostic. Use them with whatever you're building:
 
-> 🪟 **Coming soon to the Windows App Store**
+- Any RAG pipeline — LlamaIndex, LangChain, or your own
+- Local hybrid retrieval with **[pxctx](https://github.com/little-free-library/pxctx)**
+- Hugging Face dataset pipelines
+- Custom agentic systems, IDE agents, or local tooling
+
+The knowledge belongs to you. Use it however you see fit.
+
+> 🪟 Building on Windows? **[LocalAgent Studio](https://github.com/little-free-library/localagent-studio)** — coming soon to the Windows App Store — is a native multi-agent environment built to work with LFL out of the box.
 
 ---
 
@@ -166,8 +186,11 @@ This is not a startup. There is no Series A. The only goal is a growing, well-ma
 
 | Component | License |
 |-----------|---------|
-| Corpora (knowledge data) | [CC-BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) |
-| Tooling & scripts | [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0) + [Commons Clause](https://commonsclause.com/) |
+| Tier 1 Corpora (redistributable data) | [CC-BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) |
+| Tier 2 Recipes (manifests + scripts) | [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0) + [Commons Clause](https://commonsclause.com/) |
+| Tooling & CLI | [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0) + [Commons Clause](https://commonsclause.com/) |
+
+LFL never relicenses third-party content. Each source retains its original license terms. Per-source license metadata is captured in `sources/<source_id>.json` and propagated into every chunk's frontmatter.
 
 The Commons Clause means you are free to use, modify, and build with this project. You may not sell it or offer it as a paid service without permission.
 
