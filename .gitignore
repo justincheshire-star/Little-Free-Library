@@ -1,0 +1,17 @@
+# Professor X context store — runtime only, never commit
+.pxctx/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+*.egg-info/
+dist/
+build/
+
+# Editor
+.vscode/settings.json
+*.swp
+*~

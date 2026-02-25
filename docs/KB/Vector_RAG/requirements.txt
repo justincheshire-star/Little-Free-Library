@@ -1,0 +1,15 @@
+# pxctx / Vector_RAG — Python dependencies
+# Install: pip install -r docs/KB/Vector_RAG/requirements.txt
+
+# CLI
+click>=8.0
+
+# Numerics (embeddings)
+numpy>=1.21
+
+# Embedding model (optional — system degrades gracefully without it)
+# Comment out if you want a lightweight no-vector install:
+sentence-transformers>=2.2.0
+
+# Progress bars
+tqdm>=4.60
