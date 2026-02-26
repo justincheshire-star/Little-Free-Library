@@ -179,11 +179,41 @@ Python docs are PSF-2.0 licensed (Tier 1 compatible)
 
 ## 📝 Session Summary (Optional)
 
-For significant work sessions, create a summary:
+For significant work sessions, create a summary.
 
-**Location**: `docs/session-reviews/YYYY/MM-month/SESSION_SUMMARY_MONDD_YYYY.md`
+### File Nomenclature
+
+**Location**: `docs/Session Reviews/YYYY/MM-month/SESSION_SUMMARY_MONDD_YYYY.md`
 
 **Template**: See [SESSION_REVIEW_TEMPLATE.md](SESSION_REVIEW_TEMPLATE.md)
+
+**Naming Convention**:
+- Use format: `SESSION_SUMMARY_<MONTH><DAY>_<YEAR>.md`
+- Examples: `SESSION_SUMMARY_FEB26_2026.md`, `SESSION_SUMMARY_MAR15_2026.md`
+- Month abbreviation: JAN, FEB, MAR, APR, MAY, JUN, JUL, AUG, SEP, OCT, NOV, DEC
+- Day: Zero-padded (01-31)
+- Year: Four digits
+
+### One Summary Per Day Rule
+
+**IMPORTANT**: Create **ONE session summary per day**, regardless of how many work segments occur.
+
+**If multiple work segments on same day:**
+- Create a single consolidated summary
+- Use section headers to distinguish work segments (e.g., "Segment 1: ...", "Segment 2: ...")
+- Merge all work into unified sections (Work Completed, Key Decisions, etc.)
+- List all commits from all segments in one Commits section
+- Provide combined statistics and metrics
+
+**Rationale**:
+- Reduces duplication and fragmentation
+- Easier to review daily work at a glance
+- Cleaner session review directory
+- Better historical record
+
+**Example**:
+- ❌ Wrong: `SESSION_COMPLETION_FEB26_2026.md` + `SESSION_EMBEDDING_MODELS_FEB26_2026.md`
+- ✅ Right: `SESSION_SUMMARY_FEB26_2026.md` (consolidates both work segments)
 
 ---
 
