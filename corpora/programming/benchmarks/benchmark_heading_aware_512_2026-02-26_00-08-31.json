@@ -1,0 +1,30 @@
+{
+  "corpus_path": "/workspaces/Little-Free-Library/corpora/programming",
+  "profile": "baseline_cpu_onnx_small",
+  "params": {
+    "chunk_size": 512,
+    "chunk_overlap": 64,
+    "chunking_strategy": "heading_aware",
+    "embedding_profile": "baseline_cpu_onnx_small",
+    "text_normalization": true,
+    "min_chunk_tokens": 32,
+    "max_chunk_tokens": 1024
+  },
+  "chunk_count": 4,
+  "query_count": 8,
+  "avg_chunk_tokens": 412.8,
+  "target_chunk_tokens": 512,
+  "recall_at_1": 1.0,
+  "recall_at_3": 1.0,
+  "recall_at_5": 1.0,
+  "mrr": 1.0,
+  "normalized_token_cost": 0.8062,
+  "efficiency_score": 1.2405,
+  "coverage_penalty": 1.0,
+  "final_score": 1.2405,
+  "recommendations": [
+    "Excellent score. Consider publishing this profile + params as the recommended ingestion config for this corpus."
+  ],
+  "elapsed_seconds": 0.01,
+  "generated_at": "2026-02-26 00:08:31"
+}

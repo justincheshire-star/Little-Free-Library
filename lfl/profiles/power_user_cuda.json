@@ -1,0 +1,28 @@
+{
+  "id": "power_user_cuda",
+  "display_name": "Power User — NVIDIA CUDA",
+  "description": "Maximum quality and speed for NVIDIA GPU users. Uses SentenceTransformers with CUDA. Best retrieval quality of any official profile.",
+  "status": "official",
+  "model_name": "BAAI/bge-large-en-v1.5",
+  "format": "pytorch",
+  "runtime": "torch-cuda",
+  "runner": "sentence-transformers",
+  "dimensions": 1024,
+  "max_seq_len": 512,
+  "pooling": "cls",
+  "normalize": true,
+  "hardware": ["cuda"],
+  "platforms": ["windows", "linux"],
+  "cuda_min_version": "11.8",
+  "install": {
+    "pip": [
+      "sentence-transformers",
+      "torch --index-url https://download.pytorch.org/whl/cu118"
+    ]
+  },
+  "reproducibility": "version-locked",
+  "torch_version_lock": "2.2.0+cu118",
+  "chunking_version": "1.0.0",
+  "text_normalization_version": "1.0.0",
+  "notes": "Lock your torch version in requirements.txt. Vectors are not guaranteed bit-identical across different CUDA or driver versions. Treat embeddings as tied to a specific build environment."
+}

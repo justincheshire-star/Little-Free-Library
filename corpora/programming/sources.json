@@ -1,10 +1,38 @@
-[
-  {
-    "id": "example-source-1",
-    "url": "https://example.com/source",
-    "title": "Example Source Title",
-    "original_license": "CC-BY-4.0",
-    "retrieval_date": "2026-01-01",
-    "notes": "Replace this entry with real source information."
-  }
-]
+{
+  "corpus": "programming",
+  "version": "1.0.0",
+  "sources": [
+    {
+      "id": "python-docs-3.12",
+      "name": "Python Official Documentation",
+      "license": "PSF-2.0",
+      "url": "https://docs.python.org/3/",
+      "retrieved_at": "2026-02-26",
+      "notes": "Python Software Foundation License"
+    },
+    {
+      "id": "clrs-4th-edition",
+      "name": "Introduction to Algorithms (4th Edition)",
+      "license": "Educational Fair Use",
+      "url": "https://mitpress.mit.edu/9780262046305/introduction-to-algorithms/",
+      "retrieved_at": "2026-02-26",
+      "notes": "Educational fair use for algorithm concepts"
+    },
+    {
+      "id": "git-docs-2.43",
+      "name": "Git Documentation",
+      "license": "CC-BY-SA-3.0",
+      "url": "https://git-scm.com/doc",
+      "retrieved_at": "2026-02-26",
+      "notes": "Creative Commons Attribution-ShareAlike 3.0"
+    },
+    {
+      "id": "rest-api-guide-2024",
+      "name": "REST API Design Best Practices",
+      "license": "CC-BY-4.0",
+      "url": "https://restfulapi.net/",
+      "retrieved_at": "2026-02-26",
+      "notes": "Creative Commons Attribution 4.0"
+    }
+  ]
+}

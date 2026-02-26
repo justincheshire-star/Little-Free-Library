@@ -2,6 +2,8 @@
 
 Thank you for contributing to the Little Free Library (LFL)! This document describes the standards and processes for contributing corpus data and tooling improvements.
 
+> **📚 New to contributing?** Check out our comprehensive [Contributors Documentation](contributors/) hub with guides for onboarding, architecture, and best practices.
+
 ## Table of Contents
 
 - [Code of Conduct](#code-of-conduct)

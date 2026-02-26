@@ -1,0 +1,39 @@
+{
+  "generated_at": "2026-02-26T00:08:25.755926",
+  "strategy": "heuristic",
+  "count": 8,
+  "queries": [
+    {
+      "query": "In programming, what does this mean: - O(log n) - Logarithmic time: The algorithm's running time grows logarithmicall...?",
+      "chunk_id": "big_o_notation"
+    },
+    {
+      "query": "What is In computer science, Big O notation?",
+      "chunk_id": "big_o_notation"
+    },
+    {
+      "query": "What is Git Branching Strategy A well-defined branching strategy?",
+      "chunk_id": "git_branching_strategy"
+    },
+    {
+      "query": "In programming, what does this mean: Create descriptive branch names for new work 3?",
+      "chunk_id": "git_branching_strategy"
+    },
+    {
+      "query": "In programming, what does this mean: Complex comprehensions should be replaced with regular for loops for clarity?",
+      "chunk_id": "python_list_comprehension"
+    },
+    {
+      "query": "In programming, what does this mean: Python List Comprehension List comprehensions provide a concise way to create li...?",
+      "chunk_id": "python_list_comprehension"
+    },
+    {
+      "query": "In programming, what does this mean: A RESTful API uses HTTP requests to access and manipulate data?",
+      "chunk_id": "restful_api_design"
+    },
+    {
+      "query": "What is RESTful API Design Principles REST (Representational State Transfer)?",
+      "chunk_id": "restful_api_design"
+    }
+  ]
+}
