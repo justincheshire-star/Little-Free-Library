@@ -1,0 +1,23 @@
+# Git LFS Configuration for Little Free Library
+# Track large binary model files with Git LFS
+
+# ONNX model files (FastEmbed)
+*.onnx filter=lfs diff=lfs merge=lfs -text
+*.onnx_data filter=lfs diff=lfs merge=lfs -text
+
+# FastEmbed blob storage (large binary blobs without extensions)
+models/fastembed/**/blobs/* filter=lfs diff=lfs merge=lfs -text
+
+# PyTorch model files (Sentence-Transformers)
+*.bin filter=lfs diff=lfs merge=lfs -text
+*.safetensors filter=lfs diff=lfs merge=lfs -text
+pytorch_model.bin filter=lfs diff=lfs merge=lfs -text
+model.safetensors filter=lfs diff=lfs merge=lfs -text
+
+# Tokenizer vocabulary files (can be large)
+*.spm filter=lfs diff=lfs merge=lfs -text
+sentencepiece.bpe.model filter=lfs diff=lfs merge=lfs -text
+
+# Other large model artifacts
+*.msgpack filter=lfs diff=lfs merge=lfs -text
+*.h5 filter=lfs diff=lfs merge=lfs -text

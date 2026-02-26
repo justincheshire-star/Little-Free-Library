@@ -106,6 +106,192 @@ content_hash: sha256:4b3a2f...
 
 ---
 
+## The Toolkit
+
+Little Free Library includes a comprehensive validation and benchmarking toolkit (`lfl`) to ensure corpus quality and optimize retrieval performance. The toolkit provides document chunking, corpus validation, hybrid retrieval testing, and benchmarking.
+
+### Installation
+
+```bash
+# Install in development mode
+pip install -e .
+
+# Or install dependencies directly
+pip install pyyaml numpy typer
+
+# For vector embeddings support (both systems included)
+pip install fastembed sentence-transformers einops
+
+# Download embedded models (~796 MB via Git LFS)
+git lfs pull
+```
+
+**Embedding Models Included:**
+- ✅ **FastEmbed ONNX** - Cross-platform, no PyTorch (~273 MB)
+  - `bge-small-en-v1.5` (384-dim) - Fast baseline
+  - `bge-base-en-v1.5` (768-dim) - Better quality
+- ✅ **Sentence-Transformers PyTorch** - Full-featured, GPU-optimized (~523 MB)
+  - `nomic-embed-text-v1.5` (768-dim) - Apache 2.0 licensed
+
+See **[Embedding Setup Guide](docs/EMBEDDING_SETUP.md)** for usage details and comparison.
+
+### CLI Commands
+
+#### `lfl chunk` — Convert Documents to Corpus Chunks
+
+Transform raw documents into corpus-ready markdown chunks with complete metadata:
+
+```bash
+# Basic chunking with heading-aware strategy
+lfl chunk document.md corpora/programming/chunks/
+
+# Specify chunking strategy and chunk size
+lfl chunk document.md output/ --strategy heading_aware --chunk-size 600
+
+# Sliding window with overlap
+lfl chunk document.md output/ --strategy sliding_window --chunk-size 500 --overlap 50
+
+# All available strategies
+lfl chunk document.md output/ --strategy naive_paragraph  # Split on paragraphs
+lfl chunk document.md output/ --strategy heading_aware    # Split at headings (default)
+lfl chunk document.md output/ --strategy sliding_window   # Fixed windows with overlap
+lfl chunk document.md output/ --strategy semantic         # Semantic boundaries (experimental)
+```
+
+**Chunking strategies:**
+- `naive_paragraph` — Split on double newlines, pack to target size
+- `heading_aware` — Split at markdown headings, preserve document structure (default)
+- `sliding_window` — Fixed-size windows with configurable overlap
+- `semantic` — Semantic boundary detection (currently falls back to heading_aware)
+
+**Generated metadata includes:**
+- Title (auto-extracted or from frontmatter)
+- Domain, subdomain, source URL
+- License, source_id, timestamp
+- Importance score (0.0-1.0)
+- Tags array
+- Content hash (SHA256 for idempotency)
+- Token count (chunk_tokens field)
+
+#### `lfl validate` — Validate Corpus Structure
+
+Comprehensive validation of corpus structure, metadata, and provenance:
+
+```bash
+# Validate a corpus
+lfl validate corpora/programming
+
+# Strict mode (fail on warnings)
+lfl validate corpora/programming --strict
+```
+
+**Validation checks:**
+- YAML frontmatter completeness
+- Required metadata fields (title, domain, source, license, etc.)
+- sources.json schema validation
+- Cross-reference chunk source_ids with sources.json
+- Detect orphaned sources (defined but never referenced)
+- License compliance
+- Content hash integrity
+
+**Output example:**
+```
+✓ Validated 156 chunks
+✓ 156 valid, 0 invalid
+✓ sources.json: 8 sources defined
+⚠ 2 sources never referenced by any chunk (orphaned):
+  - deprecated_guide
+  - old_tutorial_v1
+```
+
+#### `lfl benchmark` — Test Retrieval Quality
+
+Automatically generate synthetic queries and measure retrieval quality:
+
+```bash
+# Run a single benchmark
+lfl benchmark run corpora/programming
+
+# Test multiple parameter configurations (sweep)
+lfl benchmark sweep corpora/programming
+
+# Compare all saved benchmark reports
+lfl benchmark compare corpora/programming
+```
+
+**The benchmarking system:**
+- Generates synthetic queries automatically (no human annotation needed)
+- Tests BM25 lexical retrieval as quality baseline
+- Optionally tests vector and hybrid retrieval modes
+- Measures recall@k, MRR (Mean Reciprocal Rank), and token efficiency
+- Recommends optimal chunking parameters
+- Tracks quality over time with versioned reports
+- Saves reports to `corpus_dir/reports/YYYY-MM-DD_HH-MM-SS.json`
+
+**Supported retrieval modes:**
+- `bm25` — Lexical retrieval (always available, no dependencies)
+- `vector` — Semantic vector search (requires fastembed/sentence-transformers)
+- `hybrid` — Combines BM25 + vector with Reciprocal Rank Fusion (RRF)
+
+#### `lfl version` — Show Toolkit Version
+
+```bash
+lfl version
+```
+
+### Embedding Profiles
+
+The toolkit includes 5 official embedding profiles for reproducible corpus ingestion:
+
+| Profile | Model | Dimensions | Hardware | Purpose |
+|---------|-------|------------|----------|---------|
+| `baseline_cpu_onnx_small` | nomic-embed-text-v1.5 | 384 | Any CPU | Default, fast, good quality |
+| `quality_cpu_onnx_base` | BAAI/bge-base-en-v1.5 | 768 | Any CPU | Higher quality, slower |
+| `power_user_cuda` | BAAI/bge-large-en-v1.5 | 1024 | NVIDIA GPU | Best quality, requires CUDA |
+| `power_user_rocm` | BAAI/bge-large-en-v1.5 | 1024 | AMD GPU | Best quality, requires ROCm |
+| `windows_gpu_directml` | BAAI/bge-base-en-v1.5 | 768 | Windows GPU | DirectML support |
+
+**Same profile + same corpus = same vectors (reproducible builds).**
+
+Profiles are stored in `lfl/profiles/*.json` and loaded automatically by the embeddings module.
+
+### Quick Start Workflow
+
+```bash
+# 1. Create chunks from raw documents
+lfl chunk raw_docs/python_guide.md corpora/programming/chunks/
+
+# 2. Validate the corpus structure
+lfl validate corpora/programming
+
+# 3. Run retrieval benchmarks
+lfl benchmark run corpora/programming
+
+# 4. Optimize parameters with sweep
+lfl benchmark sweep corpora/programming
+```
+
+### Documentation
+
+**Getting Started:**
+- [QUICKSTART.md](docs/QUICKSTART.md) — Step-by-step tutorials for first-time users
+- [Embedding Setup Guide](docs/EMBEDDING_SETUP.md) — Configure and use embedded models
+- [Contributors Guide](contributors/) — Complete contributor documentation hub
+
+**For Contributors:**
+- [Onboarding Guide](contributors/ONBOARDING.md) — New contributor setup and first PR
+- [Architecture](contributors/ARCHITECTURE.md) — System architecture with Mermaid diagrams
+- [Benchmarking Guide](contributors/BENCHMARKING_GUIDE.md) — Deep dive into metrics and optimization
+- [Contributing Guide](contributors/CONTRIBUTING_GUIDE.md) — Contribution policies and workflows
+
+**Technical Reference:**
+- [API Reference](docs/api/) — Sphinx-generated API documentation
+- [IMPLEMENTATION_REPORT_2026-02-26.md](docs/IMPLEMENTATION_REPORT_2026-02-26.md) — Implementation details
+- [CHANGELOG.md](CHANGELOG.md) — Version history and features
+- [Licensing Guide](docs/licensing-guide.md) — Licensing and attribution
+
+---
+
 ## The Reference Engine
 
 Little Free Library is designed to work out of the box with **[pxctx](https://github.com/little-free-library/pxctx)** — a 3-tier hybrid RAG engine with vector + full-text search, deterministic reranking, and a built-in local embedding model.
