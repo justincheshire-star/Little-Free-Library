@@ -62,6 +62,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - `CONTRIBUTING_GUIDE.md` (formerly `docs/contributing-guide.md`)
   - `contributors/README.md` - Navigation hub with 4 reading paths
 
+- **Contributor Onboarding Updates** (`contributors/ONBOARDING.md`, `contributors/CONTRIBUTING_GUIDE.md`)
+  - Added Git LFS as required prerequisite with installation instructions
+  - Updated Quick Start with `git lfs pull` step (~796 MB download)
+  - Added "Embedded Models" section explaining both FastEmbed and Sentence-Transformers
+  - Added embedding test verification step
+  - Clarified disk space requirement (~1 GB)
+  - Updated local setup instructions in Contributing Guide
+  - Linked to comprehensive EMBEDDING_SETUP.md guide
+
+- **Documentation SOP Enhancement** (`docs/SOP/DOCUMENTATION_SOP.md`)
+  - Added 3 new contribution types: Infrastructure, Dependency, Setup/Installation changes
+  - Elevated contributors/ to Tier 3 in documentation priority
+  - Added detailed "Contributors Directory Updates" section
+  - Added 5 update scenarios with checklists
+  - Added Contributors Documentation Checklist
+  - Restructured document priority tiers (now 5 tiers)
+  - Added 175 lines of guidance for maintaining contributor documentation
+
 ### Changed
 
 - **`requirements.txt`** - Updated embedding dependencies
