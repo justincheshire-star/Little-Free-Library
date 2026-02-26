@@ -1,0 +1,26 @@
+{
+  "id": "baseline_cpu_onnx_small",
+  "display_name": "Baseline CPU (ONNX Small)",
+  "description": "Default profile. Works on any machine with no GPU required. Fast and deterministic.",
+  "status": "official",
+  "model_name": "BAAI/bge-small-en-v1.5",
+  "format": "onnx",
+  "runtime": "onnxruntime-cpu",
+  "runner": "fastembed",
+  "fastembed_model_id": "BAAI/bge-small-en-v1.5",
+  "dimensions": 384,
+  "max_seq_len": 512,
+  "pooling": "cls",
+  "normalize": true,
+  "hardware": ["cpu"],
+  "platforms": ["windows", "linux", "macos"],
+  "install": {
+    "pip": ["fastembed"]
+  },
+  "reproducibility": "deterministic",
+  "onnx_model_sha256": "",
+  "tokenizer_sha256": "",
+  "chunking_version": "1.0.0",
+  "text_normalization_version": "1.0.0",
+  "notes": "CI validation runs on this profile. Recommended default for all contributors."
+}

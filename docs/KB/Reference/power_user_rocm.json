@@ -1,0 +1,27 @@
+{
+  "id": "power_user_rocm",
+  "display_name": "Power User — AMD ROCm",
+  "description": "AMD GPU support via ROCm. Community-maintained, best-effort. Validated hardware only.",
+  "status": "community",
+  "model_name": "BAAI/bge-base-en-v1.5",
+  "format": "pytorch",
+  "runtime": "torch-rocm",
+  "runner": "sentence-transformers",
+  "dimensions": 768,
+  "max_seq_len": 512,
+  "pooling": "cls",
+  "normalize": true,
+  "hardware": ["rocm"],
+  "platforms": ["linux", "windows"],
+  "rocm_min_version": "5.6",
+  "install": {
+    "pip": [
+      "sentence-transformers",
+      "torch --index-url https://download.pytorch.org/whl/rocm5.6"
+    ]
+  },
+  "reproducibility": "best-effort",
+  "chunking_version": "1.0.0",
+  "text_normalization_version": "1.0.0",
+  "notes": "Consumer AMD GPU ROCm support varies. Check https://rocm.docs.amd.com/en/latest/release/gpu_os_support.html before committing. If ROCm is flaky on your hardware, fall back to baseline_cpu_onnx_small."
+}
