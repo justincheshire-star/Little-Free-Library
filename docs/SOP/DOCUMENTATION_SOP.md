@@ -31,11 +31,14 @@ Use this mapping to identify which documents require updates:
 
 | Contribution Type              | Primary Docs                                | Secondary Docs                  | Conditional Docs           |
 | ------------------------------ | ------------------------------------------- | ------------------------------- | -------------------------- |
-| **New corpus domain**          | `README.md`, `corpora/<domain>/CORPUS.md`   | `docs/contributing-guide.md`    |License tier documentation |
+| **New corpus domain**          | `README.md`, `corpora/<domain>/CORPUS.md`   | `contributors/CONTRIBUTING_GUIDE.md` | License tier documentation |
 | **Add sources to corpus**      | `corpora/<domain>/CORPUS.md`, `sources.json`| `README.md` (update status table)| —                          |
 | **Update chunk format**        | Chunk files, `CORPUS.md`                    | `README.md` (schema section)    | Migration notes            |
 | **Licensing changes**          | `docs/licensing-guide.md`, `sources.json`   | `README.md`                     | Affected corpus CORPUS.md  |
 | **Script/tooling changes**     | `README.md` (usage), script docstrings      | `docs/KB/tooling/`              | —                          |
+| **Infrastructure changes**     | `README.md`, `CHANGELOG.md`                 | `contributors/ONBOARDING.md`    | `contributors/CONTRIBUTING_GUIDE.md` |
+| **Dependency changes**         | `requirements.txt`, `README.md`             | `contributors/ONBOARDING.md`    | Setup instructions         |
+| **Setup/installation changes** | `README.md`, `contributors/ONBOARDING.md`   | `contributors/CONTRIBUTING_GUIDE.md` | —                      |
 | **SOP updates**                | Relevant `docs/SOP/*.md`                    | `docs/SOP/INDEX.md`             | —                          |
 | **KB/documentation changes**   | Affected KB docs                            | `docs/KB/README.md`             | —                          |
 
@@ -47,6 +50,7 @@ When performing a documentation sweep, process documents in this order:
 Tier 1 (Always Check):
 ├── README.md                    # Project overview & quick start
 ├── CONTRIBUTING.md              # Contribution guidelines
+├── CHANGELOG.md                 # Version history
 └── LICENSE                      # Repository license
 
 Tier 2 (Corpus-Specific):
@@ -54,12 +58,19 @@ Tier 2 (Corpus-Specific):
 ├── corpora/<domain>/sources.json # Source provenance
 └── corpora/<domain>/chunks/      # Chunk metadata headers
 
-Tier 3 (Guides & Policies):
-├── docs/contributing-guide.md   # How to contribute
-├── docs/licensing-guide.md      # Licensing tiers
-└── docs/KB/architecture/        # Corpus architecture
+Tier 3 (Contributor Documentation):
+├── contributors/README.md       # Contributors hub navigation
+├── contributors/ONBOARDING.md   # New contributor setup
+├── contributors/CONTRIBUTING_GUIDE.md # Contribution workflows
+├── contributors/ARCHITECTURE.md # System architecture
+└── contributors/BENCHMARKING_GUIDE.md # Quality metrics
 
-Tier 4 (Reference & SOPs):
+Tier 4 (Guides & Policies):
+├── docs/licensing-guide.md      # Licensing tiers
+├── docs/KB/architecture/        # Corpus architecture
+└── docs/KB/tooling/             # Tooling documentation
+
+Tier 5 (Reference & SOPs):
 ├── docs/SOP/INDEX.md            # SOP directory
 └── docs/SOP/*.md                # Individual SOPs
 ```
@@ -203,6 +214,65 @@ Update when:
 - Tier definitions refined
 - Compliance requirements change
 
+### Contributors Directory Updates
+
+Update when infrastructure, dependencies, or setup processes change.
+
+**Contributors Hub (`contributors/README.md`)**
+
+Update when:
+- New contributor documentation added
+- Documentation structure changes
+- Quick reference needs updates
+
+**Onboarding Guide (`contributors/ONBOARDING.md`)**
+
+Update when:
+- Prerequisites change (e.g., Git LFS required)
+- Setup steps change (e.g., new dependencies)
+- Installation process changes
+- New tools or systems added (e.g., embedding models)
+- Development environment requirements change
+
+**Pattern**:
+```markdown
+### Prerequisites
+
+**Required:**
+- List all required tools with versions
+- Include installation instructions for each
+- Note disk space requirements
+- Specify platform-specific requirements
+
+**Install Instructions:**
+# Show commands for major platforms
+# Include verification steps
+```
+
+**Contributing Guide (`contributors/CONTRIBUTING_GUIDE.md`)**
+
+Update when:
+- Local setup process changes
+- New validation requirements added
+- Workflow steps change
+- New tools integrated
+
+**Architecture Guide (`contributors/ARCHITECTURE.md`)**
+
+Update when:
+- System architecture changes
+- New components added
+- Data flow changes
+- Integration points change
+
+**Benchmarking Guide (`contributors/BENCHMARKING_GUIDE.md`)**
+
+Update when:
+- New metrics added
+- Benchmarking process changes
+- Quality thresholds updated
+- Optimization strategies change
+
 ---
 
 ## ✅ Pre-Commit Documentation Checklist
@@ -268,6 +338,7 @@ Use conventional commits for documentation changes:
 docs(programming): add Python asyncio sources to CORPUS.md
 docs(readme): update status table with web-dev corpus
 docs(sop): refine documentation sweep procedure
+docs(contributors): update onboarding for Git LFS requirement
 feat(corpus): add new mathematics corpus
 chore(license): clarify tier 2 redistribution rules
 ```
@@ -283,7 +354,111 @@ chore(license): clarify tier 2 redistribution rules
 ```
 
 **Types**: `docs`, `feat`, `fix`, `chore`, `refactor`  
-**Scopes**: `readme`, `corpus`, `sop`, `license`, domain names  
+**Scopes**: `readme`, `corpus`, `sop`, `license`, `contributors`, domain names  
+
+---
+
+## 🔄 Contributors Directory Update Scenarios
+
+### Scenario 1: Adding New Dependencies
+
+**Trigger**: New library added to `requirements.txt`
+
+**Actions**:
+- [ ] Update `contributors/ONBOARDING.md` → Prerequisites or Install Dependencies section
+- [ ] Update `contributors/CONTRIBUTING_GUIDE.md` → Setting Up Locally section
+- [ ] Update `README.md` → Installation section if user-facing
+- [ ] Update `CHANGELOG.md` with dependency change
+
+**Example**: Adding embedding libraries (fastembed, sentence-transformers)
+
+### Scenario 2: Infrastructure Changes
+
+**Trigger**: New infrastructure requirement (e.g., Git LFS, Docker, database)
+
+**Actions**:
+- [ ] Update `contributors/ONBOARDING.md` → Prerequisites section
+- [ ] Add installation instructions with platform-specific guidance
+- [ ] Update Quick Start steps to include new setup
+- [ ] Update `contributors/CONTRIBUTING_GUIDE.md` → Setting Up Locally
+- [ ] Update `README.md` if user-facing
+- [ ] Document in `CHANGELOG.md`
+
+**Example**: Adding Git LFS for model files
+
+### Scenario 3: New Models or Large Assets
+
+**Trigger**: Embedding models, datasets, or other large files added
+
+**Actions**:
+- [ ] Update `contributors/ONBOARDING.md`:
+  - Prerequisites (disk space, Git LFS)
+  - Quick Start (download steps)
+  - Add dedicated section explaining the assets
+  - Add verification/testing instructions
+- [ ] Update `contributors/CONTRIBUTING_GUIDE.md` → Setup section
+- [ ] Create dedicated guide in `docs/` (e.g., `EMBEDDING_SETUP.md`)
+- [ ] Update `README.md` → Installation section
+- [ ] Update `CHANGELOG.md`
+
+**Example**: Embedding 796 MB of ONNX and PyTorch models
+
+### Scenario 4: Development Workflow Changes
+
+**Trigger**: New testing requirements, validation steps, or development processes
+
+**Actions**:
+- [ ] Update `contributors/CONTRIBUTING_GUIDE.md` → Relevant workflow sections
+- [ ] Update `contributors/ONBOARDING.md` → Development Environment Setup
+- [ ] Update relevant SOP if process-related
+- [ ] Update `README.md` if user-facing
+
+**Example**: Adding mandatory pre-commit hooks
+
+### Scenario 5: Architecture Changes
+
+**Trigger**: New modules, refactored structure, or system design changes
+
+**Actions**:
+- [ ] Update `contributors/ARCHITECTURE.md` → Relevant diagrams and descriptions
+- [ ] Update `contributors/ONBOARDING.md` → Understanding the Codebase section
+- [ ] Update `README.md` if user-facing
+- [ ] Document in `CHANGELOG.md`
+
+**Example**: Adding hybrid retrieval system
+
+---
+
+## 📋 Contributors Documentation Checklist
+
+When making infrastructure, dependency, or setup changes:
+
+### Quick Check
+
+- [ ] Does this change affect how contributors set up their environment?
+- [ ] Does this change add new prerequisites?
+- [ ] Does this change modify installation steps?
+- [ ] Does this change add new tools or systems?
+- [ ] Does this change affect development workflow?
+
+### If YES to any, update:
+
+**Always Update**:
+- [ ] `contributors/ONBOARDING.md` (if setup-related)
+- [ ] `CHANGELOG.md` (document the change)
+
+**Conditionally Update**:
+- [ ] `contributors/CONTRIBUTING_GUIDE.md` (if workflow-related)
+- [ ] `contributors/ARCHITECTURE.md` (if architecture-related)
+- [ ] `contributors/README.md` (if navigation structure changes)
+- [ ] `README.md` (if user-facing)
+
+### After Update
+
+- [ ] Test instructions on fresh clone
+- [ ] Verify all links work
+- [ ] Check cross-references are consistent
+- [ ] Run validation scripts if applicable
 
 ---
 
