@@ -2,12 +2,19 @@
 
 Welcome to the Little Free Library contributor documentation! This directory contains all the resources you need to contribute to the project.
 
+**Completed datasets:** [https://huggingface.co/LittleFreeLibrary](https://huggingface.co/LittleFreeLibrary)
+
 ## Quick Links
 
 ### Getting Started
 - **[Onboarding Guide](ONBOARDING.md)** — Complete guide from setup to your first PR
 - **[Contributing Guide](CONTRIBUTING_GUIDE.md)** — Contribution policies and workflows
 - **[Main CONTRIBUTING.md](../CONTRIBUTING.md)** — High-level contribution overview
+
+### Ingestion & Tooling
+- **[Ingestion System Spec](../docs/KB/INGESTION_SYSTEM_SPEC.md)** — Drop-folder ingestion design and usage
+- **[QUICKSTART.md](../docs/QUICKSTART.md)** — Full CLI tutorial (validate, ingest, benchmark)
+- **[Embedding Setup Guide](../docs/EMBEDDING_SETUP.md)** — Configure and use embedded models
 
 ### Technical Documentation
 - **[Architecture](ARCHITECTURE.md)** — System architecture with diagrams
@@ -95,7 +102,8 @@ Welcome to the Little Free Library contributor documentation! This directory con
 
 ### Path 3: Corpus Contributor (Content Contributors)
 1. [Contributing Guide](CONTRIBUTING_GUIDE.md) — Licensing requirements
-2. [Benchmarking Guide](BENCHMARKING_GUIDE.md) — Quality metrics
+2. [Ingestion System Spec](../docs/KB/INGESTION_SYSTEM_SPEC.md) — Drop-folder workflow
+3. [Benchmarking Guide](BENCHMARKING_GUIDE.md) — Quality metrics
 3. [Documentation SOP](../docs/SOP/DOCUMENTATION_SOP.md) — Metadata requirements
 4. Create your corpus!
 
@@ -116,7 +124,7 @@ git clone https://github.com/YOUR_USERNAME/Little-Free-Library.git
 cd Little-Free-Library
 python -m venv venv
 source venv/bin/activate
-pip install -e ".[dev,embeddings]"
+pip install -e ".[all_ingest,dev]"
 lfl version
 ```
 
@@ -125,6 +133,14 @@ lfl version
 pytest tests/ -v
 lfl validate corpora/programming
 lfl benchmark run corpora/programming
+```
+
+**Ingest documents:**
+```bash
+mkdir -p ingestion/my_domain
+cp ~/Documents/*.pdf ingestion/my_domain/
+lfl ingest my_domain --inventory   # dry-run
+lfl ingest my_domain               # full run
 ```
 
 **Build documentation:**
@@ -179,10 +195,17 @@ Little-Free-Library/
 │   ├── corpus_validation.py  # Corpus validation
 │   ├── embeddings.py         # Vector embeddings
 │   ├── retrieval.py          # Hybrid retrieval
-│   └── ...
+│   └── ingest/               # Drop-folder ingestion pipeline
+│       ├── detect.py         # MIME detection + discovery
+│       ├── convert.py        # LibreOffice conversion
+│       ├── extract.py        # PDF/DOCX/XLSX/HTML/TXT extractors
+│       └── pipeline.py       # 9-stage ingestion orchestration
 │
 ├── corpora/                  # Knowledge corpora
 │   └── programming/          # Programming corpus
+│
+├── ingestion/                # Drop folder for raw documents (gitignored)
+├── ingestion_out/            # Ingestion artifacts (gitignored)
 │
 ├── docs/                     # Documentation
 │   ├── api/                  # Sphinx API docs
@@ -190,8 +213,8 @@ Little-Free-Library/
 │   ├── SOP/                  # Standard operating procedures
 │   └── QUICKSTART.md         # User quick start
 │
-├── tests/                    # Test suite
 ├── scripts/                  # Utility scripts
+├── tests/                    # Test suite
 ├── CONTRIBUTING.md           # High-level contribution guide
 ├── CHANGELOG.md              # Version history
 └── README.md                 # Project overview
@@ -208,16 +231,16 @@ Little-Free-Library/
 - Total contributor docs: ~4,400 lines
 
 **Repository size:**
-- Production code: ~2,500 lines (lfl/)
-- Documentation: ~6,000+ lines
+- Production code: ~3,500 lines (lfl/ including ingest/)
+- Documentation: ~8,000+ lines
 - Test coverage: Growing
 
 ---
 
 ## Version
 
-**Documentation Version:** 1.0.0  
-**Last Updated:** February 26, 2026  
+**Documentation Version:** 1.1.0  
+**Last Updated:** February 27, 2026  
 **Maintained By:** Little Free Library Contributors
 
 ---

@@ -26,13 +26,28 @@ little-free-library/
 │       ├── CORPUS.md         # Corpus manifest
 │       ├── sources.json      # Provenance tracking
 │       └── chunks/           # Individual knowledge chunks
+├── lfl/                      # Main package (Apache 2.0 + Commons Clause)
+│   ├── cli.py                # CLI entry point (lfl command)
+│   ├── chunking.py           # Document chunking (4 strategies)
+│   ├── corpus_validation.py  # Corpus validation
+│   ├── embeddings.py         # Vector embeddings
+│   ├── retrieval.py          # Hybrid retrieval
+│   └── ingest/               # Drop-folder ingestion pipeline
+│       ├── detect.py         # MIME detection, SHA256 hashing
+│       ├── convert.py        # LibreOffice conversion wrappers
+│       ├── extract.py        # PDF/DOCX/XLSX/HTML/TXT extractors
+│       └── pipeline.py       # 9-stage ingestion orchestration
 ├── ratings/                  # Community quality ratings
-├── docs/                     # Documentation
+├── ingestion/                # Drop folder for raw documents (gitignored)
+├── ingestion_out/            # Ingestion artifacts/manifests (gitignored)
 ├── scripts/                  # Tooling (Apache 2.0 + Commons Clause)
+│   ├── check_forbidden_files.py  # Pre-commit file guard
 │   ├── ingest.py
 │   └── validate_corpus.py
 ├── .github/
-│   └── PULL_REQUEST_TEMPLATE.md
+│   └── workflows/
+│       └── validate-files.yml  # CI: forbidden files + corpus validation
+├── docs/                     # Documentation
 ├── README.md
 ├── CONTRIBUTING.md
 └── LICENSE
@@ -50,11 +65,17 @@ cd Little-Free-Library
 # Download embedded models (~796 MB via Git LFS)
 git lfs pull
 
-# Install dependencies (includes embedding libraries)
+# Install core dependencies (includes embedding libraries)
 pip install -r requirements.txt
+
+# Install in development mode with ingestion support
+pip install -e ".[all_ingest,dev]"
 
 # Optional: Test embedding models
 python scripts/test_embeddings.py
+
+# Verify CLI
+lfl version
 ```
 
 **Note:** Git LFS is required to download the embedded models. See the [Onboarding Guide](ONBOARDING.md#prerequisites) for Git LFS installation instructions.
@@ -132,17 +153,48 @@ the array and eliminates half of the remaining search space on each iteration.
 
 ## Validating Your Contribution
 
-Before opening a PR, run the validation script:
+Before opening a PR, validate your corpus:
 
 ```bash
-python scripts/validate_corpus.py corpora/<domain>/chunks/
+# Using the lfl CLI (recommended)
+lfl validate corpora/<domain>
+
+# Strict mode (fail on warnings)
+lfl validate corpora/<domain> --strict
 ```
 
-This will check that all chunk files have the required frontmatter fields and valid values. Fix any reported errors before submitting.
+This checks YAML frontmatter, required metadata fields, sources.json schema, and cross-references between chunk source_ids and sources.json. Fix any reported errors before submitting.
 
 ---
 
-## Running the Ingestion Script
+## Using Drop-Folder Ingestion
+
+The recommended way to add documents to a corpus is via `lfl ingest`:
+
+```bash
+# 1. Place documents in the ingestion drop folder
+mkdir -p ingestion/<domain>
+cp ~/Documents/*.pdf ingestion/<domain>/
+
+# 2. Preview what would be ingested (dry-run)
+lfl ingest <domain> --inventory
+
+# 3. Run full ingestion
+lfl ingest <domain>
+
+# 4. With embeddings
+lfl ingest <domain> --embed --profile baseline_cpu_onnx_small
+```
+
+**Supported formats:** PDF, DOCX, XLSX, HTML, TXT, Markdown. With LibreOffice: Pages, Numbers, Keynote, legacy Office.
+
+**Install ingestion dependencies:** `pip install -e ".[all_ingest]"`
+
+> **Never commit raw documents.** The CI workflow and pre-commit guard will block PDF, DOCX, and other binary formats. Always use `lfl ingest` to convert documents to chunks first.
+
+---
+
+## Running the HF Export Script
 
 To generate a Hugging Face-compatible dataset from a corpus:
 
@@ -151,6 +203,8 @@ python scripts/ingest.py corpora/<domain>/chunks/ --output /tmp/dataset
 ```
 
 This outputs a directory compatible with `datasets.load_from_disk()`.
+
+**Published datasets:** Once reviewed and approved, completed datasets are published to the [LittleFreeLibrary Hugging Face organization](https://huggingface.co/LittleFreeLibrary) where they can be loaded with `load_dataset("LittleFreeLibrary/<corpus-name>")`.
 
 ---
 

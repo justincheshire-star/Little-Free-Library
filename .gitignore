@@ -1,17 +1,169 @@
 # Professor X context store — runtime only, never commit
 .pxctx/
 
-# Python
+############################
+# Ingestion System
+############################
+# User input drop-folder (never commit raw uploaded docs)
+ingestion/*
+!ingestion/README.md
+!ingestion/.gitkeep
+# Allow domain subdirectory READMEs
+!ingestion/*/
+ingestion/*/**
+!ingestion/*/README.md
+
+# Generated ingestion artifacts (never commit)
+ingestion_out/*
+!ingestion_out/README.md
+!ingestion_out/.gitkeep
+ingestion_out/*/**
+
+converted/
+tmp_ingest/
+.cache_ingest/
+artifacts/
+uploads/
+incoming/
+
+############################
+# Document Formats (prevent accidental commits)
+############################
+# Office formats
+*.doc
+*.docx
+*.xls
+*.xlsx
+*.ppt
+*.pptx
+*.rtf
+*.odt
+*.ods
+*.odp
+
+# Apple iWork
+*.pages
+*.numbers
+*.key
+
+# PDFs (unless explicitly tracked in corpora/ or docs/)
+*.pdf
+
+# Web formats
+*.html
+*.htm
+
+# Ebooks
+*.epub
+*.mobi
+
+# Archives
+*.zip
+*.tar
+*.gz
+*.7z
+*.rar
+
+# Images (often ingestion input)
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.tif
+*.tiff
+*.bmp
+*.webp
+*.svg
+
+# Emails
+*.eml
+*.msg
+*.mbox
+*.pst
+*.ost
+
+############################
+# Generated Indexes & Databases
+############################
+# SQLite databases (runtime only)
+*.db
+*.sqlite
+*.sqlite3
+*.duckdb
+*.duckdb-wal
+*.duckdb-shm
+*.sqlite3-wal
+*.sqlite3-shm
+
+# NumPy arrays (except tracked corpus embeddings)
+*.npy
+*.npz
+
+# Vector stores
+chroma/
+.chroma/
+**/chroma.sqlite3
+qdrant/
+qdrant_storage/
+weaviate_data/
+milvus/
+etcd/
+minio/
+lancedb/
+*.faiss
+*.index
+*.ann
+*.hnsw
+*.scann
+*.lance
+*.parquet
+
+############################
+# Python / Environment
+############################
 __pycache__/
 *.py[cod]
 *.pyo
+*.pyd
+.Python
 .venv/
 venv/
+env/
+ENV/
 *.egg-info/
 dist/
 build/
+.eggs/
+*.egg
+.env
+.env.*
 
-# Editor
+# Testing
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+
+############################
+# Editor / IDE
+############################
 .vscode/settings.json
+.idea/
 *.swp
+*.swo
 *~
+.DS_Store
+Thumbs.db
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+############################
+# Documentation builds
+############################
+docs/_build/
+docs/api/_build/
+site/

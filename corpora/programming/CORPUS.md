@@ -40,6 +40,18 @@ See [`sources.json`](sources.json) for full provenance details.
 
 ---
 
+## Access
+
+Once ingestion is complete, the processed dataset will be available at:  
+**[https://huggingface.co/LittleFreeLibrary/programming](https://huggingface.co/LittleFreeLibrary/programming)**
+
+```python
+from datasets import load_dataset
+ds = load_dataset("LittleFreeLibrary/programming")
+```
+
+---
+
 ## Chunk Frontmatter Fields Used
 
 Every chunk file in this corpus uses the following YAML frontmatter:

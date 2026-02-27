@@ -69,6 +69,16 @@ from .profiles import (
     get_default_profile,
 )
 
+# Ingestion subsystem (lazy-friendly: these are lightweight re-exports)
+from .ingest import (
+    ingest_directory,
+    DiscoveredFile,
+    ExtractedDoc,
+    ExtractedTable,
+    IngestionResult,
+    IngestionManifest,
+)
+
 __all__ = [
     # Core data structures
     "Chunk",
@@ -118,4 +128,11 @@ __all__ = [
     "load_profile",
     "list_profiles",
     "get_default_profile",
+    # Ingestion
+    "ingest_directory",
+    "DiscoveredFile",
+    "ExtractedDoc",
+    "ExtractedTable",
+    "IngestionResult",
+    "IngestionManifest",
 ]

@@ -4,6 +4,8 @@ Thank you for contributing to the Little Free Library (LFL)! This document descr
 
 > **📚 New to contributing?** Check out our comprehensive [Contributors Documentation](contributors/) hub with guides for onboarding, architecture, and best practices.
 
+**Completed datasets:** Approved corpora are published to [https://huggingface.co/LittleFreeLibrary](https://huggingface.co/LittleFreeLibrary) for public use.
+
 ## Table of Contents
 
 - [Code of Conduct](#code-of-conduct)
@@ -103,16 +105,62 @@ version: ""
 
 ## Submitting a Corpus
 
+### Option A: Drop-Folder Ingestion (Recommended)
+
+Use the `lfl ingest` command to convert documents into corpus-ready chunks automatically:
+
+```bash
+# 1. Install ingestion dependencies
+pip install -e ".[all_ingest]"
+
+# 2. Place documents in the drop folder
+mkdir -p ingestion/<domain>
+cp ~/Documents/*.pdf ingestion/<domain>/
+
+# 3. Dry-run to preview what will be ingested
+lfl ingest <domain> --inventory
+
+# 4. Run ingestion
+lfl ingest <domain>
+
+# 5. Validate the generated corpus
+lfl validate corpora/<domain>
+
+# 6. Review and commit only the generated chunks and metadata
+git add corpora/<domain>/
+git commit -m "feat(<domain>): add initial corpus via lfl ingest"
+```
+
+**Supported formats:** PDF, DOCX, XLSX, HTML, TXT, Markdown. With LibreOffice: Pages, Numbers, Keynote, legacy Office.
+
+> **Important:** Never commit raw documents (PDF, DOCX, etc.) to the repository. The `.gitignore` and CI guards will block them. Always use `lfl ingest` to convert documents into chunks first.
+
+### Option B: Manual Corpus Creation
+
 1. Fork the repository and create a new branch.
 2. Create a new directory under `corpora/<domain>/` (or add to an existing one).
 3. Add a `CORPUS.md` manifest describing the corpus.
 4. Add a `sources.json` with full provenance for all sources.
 5. Add chunk files under `corpora/<domain>/chunks/` with valid YAML frontmatter.
-6. Run the validation script to ensure all chunks pass:
+6. Run validation to ensure all chunks pass:
    ```bash
-   python scripts/validate_corpus.py corpora/<domain>/chunks/
+   lfl validate corpora/<domain>
    ```
 7. Open a Pull Request using the provided PR template.
+
+---
+
+## CI Guards and Pre-Commit Hooks
+
+The repository enforces file hygiene automatically:
+
+- **CI workflow** (`.github/workflows/validate-files.yml`) — Blocks forbidden file types (PDF, DOCX, etc.) in pushes and PRs. Runs `lfl validate` on all corpora.
+- **Pre-commit script** (`scripts/check_forbidden_files.py`) — Checks staged files for ~50 forbidden extensions before commit. Run it locally:
+  ```bash
+  git diff --cached --name-only | python scripts/check_forbidden_files.py
+  ```
+
+If you need to commit a file that triggers these guards (e.g., test fixtures), add the path to `ALLOWED_PATH_PREFIXES` in the pre-commit script.
 
 ---
 

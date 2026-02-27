@@ -1,0 +1,39 @@
+# Pre-commit hooks for Little Free Library
+# Install: pip install pre-commit && pre-commit install
+# Run manually: pre-commit run --all-files
+
+repos:
+  # ── Local hooks ─────────────────────────────────────────────────
+  - repo: local
+    hooks:
+      - id: check-forbidden-files
+        name: Check forbidden file types
+        description: Block raw documents, binaries, and ingestion artifacts from commits
+        entry: python scripts/check_forbidden_files.py
+        language: python
+        stages: [commit]
+        pass_filenames: true
+
+      - id: validate-corpus-metadata
+        name: Validate corpus metadata
+        description: Check that modified corpus chunks have valid YAML frontmatter
+        entry: python -m lfl.corpus_validation
+        language: python
+        stages: [commit]
+        files: ^corpora/.*/chunks/.*\.md$
+        pass_filenames: false
+
+  # ── Standard hooks ──────────────────────────────────────────────
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: trailing-whitespace
+        exclude: ^(models/|corpora/.*/chunks/)
+      - id: end-of-file-fixer
+        exclude: ^(models/|corpora/.*/chunks/)
+      - id: check-yaml
+      - id: check-json
+      - id: check-added-large-files
+        args: ['--maxkb=500']
+        exclude: ^models/
+      - id: check-merge-conflict

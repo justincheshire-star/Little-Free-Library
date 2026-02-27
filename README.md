@@ -63,8 +63,34 @@ Every corpus is plain markdown with a standardized metadata header. Drop it into
 ```bash
 # Pull just the corpus you need from Hugging Face
 from datasets import load_dataset
-ds = load_dataset("little-free-library/programming")
+ds = load_dataset("LittleFreeLibrary/programming")
 ```
+
+**Completed datasets are available at:** [https://huggingface.co/LittleFreeLibrary](https://huggingface.co/LittleFreeLibrary)
+
+### Creating Your Own Corpus (Drop-Folder Ingestion)
+
+Want to build a custom corpus from your own documents? The `lfl` toolkit includes **drop-folder ingestion** for common document formats:
+
+```bash
+# 1. Install with ingestion support
+pip install "lfl[all_ingest]"
+
+# 2. Create a drop folder and add documents
+mkdir -p ingestion/my_domain
+cp ~/Documents/*.pdf ingestion/my_domain/
+cp ~/Documents/*.docx ingestion/my_domain/
+
+# 3. Run ingestion (converts → extracts → chunks → validates)
+lfl ingest my_domain --embed --profile baseline_cpu_onnx_small
+
+# 4. Your corpus is ready!
+ls corpora/my_domain/chunks/
+```
+
+**Supported formats:** PDF, DOCX, XLSX, HTML, TXT, and with LibreOffice installed: Pages, Numbers, Keynote, legacy Office formats.
+
+See [docs/KB/INGESTION_SYSTEM_SPEC.md](docs/KB/INGESTION_SYSTEM_SPEC.md) for complete ingestion documentation.
 
 ---
 
@@ -108,19 +134,31 @@ content_hash: sha256:4b3a2f...
 
 ## The Toolkit
 
-Little Free Library includes a comprehensive validation and benchmarking toolkit (`lfl`) to ensure corpus quality and optimize retrieval performance. The toolkit provides document chunking, corpus validation, hybrid retrieval testing, and benchmarking.
+Little Free Library includes a comprehensive validation and benchmarking toolkit (`lfl`) to ensure corpus quality and optimize retrieval performance. The toolkit provides **document ingestion**, document chunking, corpus validation, hybrid retrieval testing, and benchmarking.
 
 ### Installation
 
 ```bash
-# Install in development mode
-pip install -e .
+# Minimal installation (core toolkit only)
+pip install lfl
 
-# Or install dependencies directly
-pip install pyyaml numpy typer
+# With document ingestion support (PDF, DOCX, XLSX, HTML, etc.)
+pip install "lfl[all_ingest]"
 
-# For vector embeddings support (both systems included)
-pip install fastembed sentence-transformers einops
+# With embeddings + ingestion (full-featured)
+pip install "lfl[all_ingest]" fastembed sentence-transformers einops
+
+# Development installation
+git clone https://github.com/justincheshire-star/Little-Free-Library.git
+cd Little-Free-Library
+pip install -e ".[all_ingest,dev]"
+```
+
+**Optional extras:**
+- `[ingest]` — Common document formats (DOCX, XLSX, HTML)
+- `[pdf]` — PDF text extraction  
+- `[ocr]` — OCR support for scanned documents
+- `[all_ingest]` — All ingestion features
 
 # Download embedded models (~796 MB via Git LFS)
 git lfs pull
@@ -136,6 +174,47 @@ git lfs pull
 See **[Embedding Setup Guide](docs/EMBEDDING_SETUP.md)** for usage details and comparison.
 
 ### CLI Commands
+
+#### `lfl ingest` — Drop-Folder Ingestion (NEW)
+
+Automatically convert, extract, chunk, and validate documents from common formats:
+
+```bash
+# Basic ingestion
+lfl ingest programming
+
+# With embeddings
+lfl ingest programming --embed --profile baseline_cpu_onnx_small
+
+# Custom paths
+lfl ingest business --input /tmp/docs --corpus-dir /tmp/corpus
+
+# Dry-run (show what would be ingested)
+lfl ingest programming --inventory
+```
+
+**What it does:**
+1. Scans `ingestion/<domain>/` for documents
+2. Converts formats if needed (Pages → PDF, Numbers → XLSX via LibreOffice)
+3. Extracts text and tables (with OCR fallback for scanned PDFs)
+4. Chunks documents using your preferred strategy
+5. Generates metadata with safe defaults (`source_license: unknown`)
+6. Validates corpus structure
+7. Optionally generates embeddings
+8. Writes manifest to `ingestion_out/<domain>/manifest.json`
+
+**Supported formats:** PDF, DOCX, XLSX, HTML, TXT, MD, and with LibreOffice: Pages, Numbers, Keynote, legacy Office.
+
+**System prerequisites:**
+```bash
+# macOS
+brew install libreoffice tesseract
+
+# Ubuntu/Debian
+sudo apt install libreoffice tesseract-ocr
+```
+
+**Install dependencies:** `pip install "lfl[all_ingest]"`
 
 #### `lfl chunk` — Convert Documents to Corpus Chunks
 
@@ -349,7 +428,7 @@ Little Free Library corpora are format-agnostic and framework-agnostic. Use them
 
 - Any RAG pipeline — LlamaIndex, LangChain, or your own
 - Local hybrid retrieval with **[pxctx](https://github.com/little-free-library/pxctx)**
-- Hugging Face dataset pipelines
+- Hugging Face dataset pipelines ([LittleFreeLibrary datasets](https://huggingface.co/LittleFreeLibrary))
 - Custom agentic systems, IDE agents, or local tooling
 
 The knowledge belongs to you. Use it however you see fit.

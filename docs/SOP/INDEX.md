@@ -1,6 +1,6 @@
 # Little Free Library — Standard Operating Procedures
 
-**Last Updated**: February 25, 2026  
+**Last Updated**: February 27, 2026  
 **Status**: Active  
 **Scope**: Corpus curation, contribution, validation, and maintenance  
 **Repository**: [Little-Free-Library](https://github.com/justincheshire-star/Little-Free-Library)
@@ -54,11 +54,11 @@ Frame every corpus contribution with quality validation:
 1. Start Session     → Run Session Review SOP
 2. Select Source     → Identify content to add
 3. Verify License    → Check compatibility (Tier 1/2/3)
-4. Chunk Content     → Apply chunking strategy
-5. Validate          → Run Testing SOP
+4. Ingest/Chunk      → Use lfl ingest (drop folder) or lfl chunk (manual)
+5. Validate          → Run Testing SOP (lfl validate)
 6. Review            → Code Review SOP
 7. Update Docs       → Documentation SOP
-8. Commit            → Use commit checklist
+8. Commit            → Use commit checklist (CI guards check forbidden files)
 9. End Session       → Create session summary
 ```
 
@@ -66,11 +66,14 @@ Frame every corpus contribution with quality validation:
 
 | Task                   | Command                                   |
 | ---------------------- | ----------------------------------------- |
-| Validate corpus        | `python scripts/validate_corpus.py`       |
+| Validate corpus        | `lfl validate corpora/<domain>`           |
+| Validate (strict)      | `lfl validate corpora/<domain> --strict`  |
+| Ingest documents       | `lfl ingest <domain>`                     |
+| Ingest dry-run         | `lfl ingest <domain> --inventory`         |
 | Validate embeddings    | `python scripts/validate_vectorset.py`    |
-| Ingest corpus          | `python scripts/ingest.py`                |
+| Export for Hugging Face| `python scripts/ingest.py`                |
 | Test pxctx integration | `python -m docs.KB.Vector_RAG.pxctx test` |
-| Run quality checks     | `python scripts/validate_corpus.py --strict` |
+| Check forbidden files  | `python scripts/check_forbidden_files.py` |
 
 ### Quality Thresholds
 

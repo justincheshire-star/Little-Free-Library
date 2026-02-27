@@ -9,6 +9,68 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+#### Drop-Folder Document Ingestion System
+
+- **New `lfl ingest` CLI command** - Full end-to-end workflow for arbitrary document formats
+  - Supports PDF, DOCX, XLSX, HTML, TXT, Markdown
+  - Apple iWork support (Pages, Numbers, Keynote) via LibreOffice conversion
+  - Legacy Office format support (DOC, XLS, PPT) via LibreOffice
+  - OCR fallback for scanned PDFs (requires Tesseract)
+  - Integrated with `lfl.chunking` for YAML-frontmatter chunks
+  - Integrated with `lfl.corpus_validation` for post-ingestion validation
+  - Optional embedding generation via `--embed` flag
+  - SHA256-based idempotency (`--on-duplicate skip|overwrite|error`)
+  - Inventory dry-run mode (`--inventory`)
+  - Auto-generates `sources.json` and `CORPUS.md`
+  - Writes manifest to `ingestion_out/<domain>/manifest.json`
+  
+- **`lfl/ingest/` module** - Modular ingestion pipeline
+  - `types.py` - Dataclasses for ingestion workflow
+  - `detect.py` - MIME type detection with fallback (python-magic / puremagic)
+  - `convert.py` - LibreOffice headless conversion wrappers
+  - `extract.py` - Format-specific text/table extractors
+  - `pipeline.py` - Main ingestion orchestration
+  
+- **Optional dependency extras** in `setup.py`
+  - `[ingest]` - Common document formats (DOCX, XLSX, HTML)
+  - `[pdf]` - PDF extraction (PyMuPDF, pdfplumber)
+  - `[ocr]` - OCR support (pytesseract, Pillow)
+  - `[convert]` - Universal converters (pypandoc)
+  - `[office_crypto]` - Encrypted Office files (msoffcrypto-tool)
+  - `[all_ingest]` - Complete ingestion bundle
+  - `[dev]` - Development dependencies
+  
+- **Drop-folder structure** (`ingestion/` and `ingestion_out/`)
+  - `ingestion/<domain>/` - User input directory (gitignored)
+  - `ingestion_out/<domain>/` - Generated artifacts (gitignored)
+  - Manifest generation for ingestion run tracking
+  
+- **Documentation**
+  - `docs/KB/INGESTION_SYSTEM_SPEC.md` - Complete 2,000+ line specification
+  - `ingestion/README.md` - User guide for drop-folder usage
+  - `ingestion_out/README.md` - Artifacts and manifest documentation
+  - Updated `README.md` with ingestion quick start
+  - Updated CLI commands documentation
+
+#### Enhanced Git Hygiene
+
+- **Comprehensive `.gitignore`** updates
+  - Gitignore `ingestion/` and `ingestion_out/` directories
+  - Block common document formats (PDF, DOCX, XLSX, Pages, etc.)
+  - Block generated databases and vector stores
+
+- **CI workflow** (`.github/workflows/validate-files.yml`)
+  - Checks staged files for forbidden extensions on every push/PR
+  - Validates ingestion directories stay clean
+  - Runs `lfl validate` against all corpora
+
+- **Pre-commit guard** (`scripts/check_forbidden_files.py`)
+  - Blocks ~50 forbidden file extensions from being committed
+  - Path-based allowlist for models/, docs/, corpora/
+  - Directs users to `lfl ingest` workflow
+  - Block images and archives (often ingestion input)
+  - Preserve tracked model files (LFS) and curated corpora
+
 #### Embedded Models (~796 MB)
 
 - **FastEmbed ONNX Models** (~273 MB)

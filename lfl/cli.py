@@ -177,6 +177,85 @@ def cmd_chunk(
         raise typer.Exit(1)
 
 
+@app.command("ingest")
+def cmd_ingest(
+    domain: str = typer.Argument(..., help="Domain name (e.g., 'programming', 'science')"),
+    input_dir: Path = typer.Option(
+        None, "--input", "-i",
+        help="Input directory containing documents. Default: ingestion/<domain>",
+    ),
+    corpus_dir: Path = typer.Option(
+        None, "--corpus-dir", "-c",
+        help="Output corpus directory. Default: corpora/<domain>",
+    ),
+    recursive: bool = typer.Option(True, "--recursive/--no-recursive", help="Scan subdirectories"),
+    embed: bool = typer.Option(False, "--embed", help="Generate embeddings after chunking"),
+    profile: str = typer.Option("baseline_cpu_onnx_small", "--profile", help="Embedding profile name"),
+    on_duplicate: str = typer.Option(
+        "update", "--on-duplicate",
+        help="Duplicate handling: 'skip' = keep existing, 'update' = overwrite",
+    ),
+    strict: bool = typer.Option(False, "--strict", help="Enable strict validation mode"),
+    strategy: str = typer.Option(
+        "heading_aware", "--strategy", "-s",
+        help="Chunking strategy: heading_aware | naive_paragraph | sliding_window",
+    ),
+    chunk_size: int = typer.Option(512, "--chunk-size", help="Target tokens per chunk"),
+    overlap: int = typer.Option(64, "--overlap", help="Token overlap between chunks"),
+    inventory: bool = typer.Option(False, "--inventory", "--dry-run", help="Show plan without writing files"),
+) -> None:
+    """
+    Ingest documents from a drop-folder into LFL corpus format.
+
+    Reads arbitrary documents (PDF, DOCX, XLSX, HTML, TXT, Pages, etc.)
+    from the input directory, extracts text, chunks them with YAML frontmatter,
+    and writes corpus-ready files with sources.json provenance.
+
+    Examples:
+        lfl ingest programming
+        lfl ingest science --input ./papers --strategy sliding_window
+        lfl ingest programming --embed --profile quality_cpu_onnx_base
+        lfl ingest programming --inventory   # dry-run: show what would be ingested
+    """
+    from .ingest import ingest_directory
+
+    # Apply defaults relative to CWD / repo root
+    if input_dir is None:
+        input_dir = Path("ingestion") / domain
+    if corpus_dir is None:
+        corpus_dir = Path("corpora") / domain
+
+    if not input_dir.exists():
+        typer.echo(f"[ERROR] Input directory not found: {input_dir}", err=True)
+        typer.echo(f"  Create it with: mkdir -p {input_dir}", err=True)
+        raise typer.Exit(1)
+
+    try:
+        manifest = ingest_directory(
+            domain=domain,
+            input_dir=input_dir,
+            corpus_dir=corpus_dir,
+            recursive=recursive,
+            on_duplicate=on_duplicate,
+            strategy=strategy,
+            chunk_size=chunk_size,
+            overlap=overlap,
+            embed=embed,
+            profile=profile,
+            strict=strict,
+            inventory=inventory,
+        )
+
+        if manifest.failures > 0 and not inventory:
+            raise typer.Exit(1)
+
+    except typer.Exit:
+        raise
+    except Exception as e:
+        typer.echo(f"[ERROR] {e}", err=True)
+        raise typer.Exit(1)
+
+
 @app.command("version")
 def cmd_version() -> None:
     """Show lfl version."""

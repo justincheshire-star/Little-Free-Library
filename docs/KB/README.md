@@ -11,6 +11,7 @@ Professor X uses this KB as part of its **Long-lived** context tier. Documents h
 ```
 docs/KB/
 ├── README.md          ← this file (index)
+├── INGESTION_SYSTEM_SPEC.md  ← drop-folder ingestion specification (2,300+ lines)
 ├── architecture/      ← system-level design decisions
 ├── corpus/            ← domain knowledge about the corpus format and tooling
 ├── tooling/           ← scripting, CI, and pxctx usage notes

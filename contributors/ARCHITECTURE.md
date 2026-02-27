@@ -23,7 +23,14 @@ High-level architecture showing all major components:
 graph TB
     subgraph "Input Layer"
         RawDocs[Raw Documents]
+        DropFolder[Drop Folder<br/>ingestion/domain/]
         UserQuery[User Queries]
+    end
+    
+    subgraph "Ingestion Layer"
+        Detect[File Detection<br/>MIME + SHA256]
+        Convert[Format Conversion<br/>LibreOffice]
+        Extract[Text Extraction<br/>PDF/DOCX/XLSX/HTML/TXT]
     end
     
     subgraph "Processing Layer"
@@ -36,6 +43,7 @@ graph TB
         Corpus[(Corpus<br/>Markdown + YAML)]
         Vectors[(Vector Store<br/>.npy files)]
         Sources[(sources.json<br/>Provenance)]
+        Manifest[(manifest.json<br/>Ingestion log)]
     end
     
     subgraph "Retrieval Layer"
@@ -51,10 +59,14 @@ graph TB
     end
     
     subgraph "Interface Layer"
-        CLI[CLI Commands<br/>lfl chunk/validate/benchmark]
+        CLI[CLI Commands<br/>lfl ingest/chunk/validate/benchmark]
         API[Python API<br/>lfl.* modules]
     end
     
+    DropFolder --> Detect
+    Detect --> Convert
+    Convert --> Extract
+    Extract --> Chunking
     RawDocs --> Chunking
     Chunking --> Corpus
     Corpus --> Validation
@@ -62,6 +74,7 @@ graph TB
     Corpus --> Embeddings
     Embeddings --> Vectors
     Sources --> Validation
+    Extract --> Manifest
     
     UserQuery --> BM25
     UserQuery --> VectorSearch
@@ -75,6 +88,7 @@ graph TB
     RRF --> Benchmark
     Benchmark --> Reports
     
+    CLI --> Detect
     CLI --> Chunking
     CLI --> Validation
     CLI --> Benchmark
@@ -82,6 +96,9 @@ graph TB
     API --> Validation
     API --> RRF
     
+    style Detect fill:#ffe0b2
+    style Convert fill:#ffe0b2
+    style Extract fill:#ffe0b2
     style Chunking fill:#e1f5ff
     style Validation fill:#fff3e0
     style Embeddings fill:#f3e5f5
@@ -90,7 +107,8 @@ graph TB
 ```
 
 **Key Components:**
-- **Chunking Engine**: Transforms raw documents into structured chunks
+- **Ingestion Layer**: Detect, convert, and extract text from arbitrary document formats
+- **Chunking Engine**: Transforms raw/extracted text into structured chunks
 - **Validation System**: Ensures corpus quality and metadata completeness
 - **Embedding Manager**: Generates and manages vector representations
 - **Retrieval Layer**: Hybrid search combining BM25 and vector search
@@ -373,10 +391,20 @@ graph TB
     end
     
     subgraph "Commands"
+        Ingest[lfl ingest<br/>Drop-Folder → Corpus]
         Chunk[lfl chunk<br/>Document → Chunks]
         Validate[lfl validate<br/>Check Metadata]
         Benchmark[lfl benchmark<br/>Quality Testing]
         Version[lfl version<br/>Show Version]
+    end
+    
+    subgraph "ingest Options"
+        I1[--input<br/>input directory]
+        I2[--inventory<br/>dry-run]
+        I3[--embed<br/>generate vectors]
+        I4[--on-duplicate<br/>skip/overwrite/error]
+        I5[--strategy<br/>heading_aware]
+        I6[--chunk-size<br/>512]
     end
     
     subgraph "chunk Options"
@@ -397,25 +425,30 @@ graph TB
     end
     
     subgraph "Outputs"
+        Out0[(Ingested<br/>Corpus + Manifest)]
         Out1[(Corpus<br/>Chunks)]
         Out2[Validation<br/>Report]
         Out3[Benchmark<br/>Report JSON]
     end
     
+    Main --> Ingest
     Main --> Chunk
     Main --> Validate
     Main --> Benchmark
     Main --> Version
     
+    Ingest --> I1 & I2 & I3 & I4 & I5 & I6
     Chunk --> C1 & C2 & C3 & C4
     Validate --> V1
     Benchmark --> BR & BS & BC
     
+    Ingest --> Out0
     Chunk --> Out1
     Validate --> Out2
     Benchmark --> Out3
     
     style Main fill:#e1f5ff
+    style Ingest fill:#ffe0b2
     style Chunk fill:#c8e6c9
     style Validate fill:#fff9c4
     style Benchmark fill:#ffecb3
@@ -425,6 +458,12 @@ graph TB
 **Command Quick Reference:**
 
 ```bash
+# Ingest documents from drop folder
+lfl ingest programming
+lfl ingest programming --inventory           # dry-run
+lfl ingest programming --embed --profile baseline_cpu_onnx_small
+lfl ingest programming --on-duplicate skip   # idempotent re-run
+
 # Chunk documents
 lfl chunk input.md output/ --strategy heading_aware --chunk-size 500
 

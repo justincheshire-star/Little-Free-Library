@@ -29,6 +29,8 @@ Little Free Library exists to make high-quality knowledge accessible to everyone
 - **Transparency is key** — Open source, open data, open processes
 - **Community-driven** — Built by contributors, for the community
 
+**Completed datasets are published to:** [https://huggingface.co/LittleFreeLibrary](https://huggingface.co/LittleFreeLibrary)
+
 ### Core Values
 
 1. **Openness** — All code, data, and processes are open
@@ -144,7 +146,10 @@ You're ready to contribute! 🎉
 pip install -r requirements.txt
 pip install -e .
 
-# Development tools
+# Full development install (includes ingestion + dev tools)
+pip install -e ".[all_ingest,dev]"
+
+# Development tools (if not using the dev extra)
 pip install black isort flake8 pytest pytest-cov
 
 # Documentation tools (if contributing to docs)
@@ -211,6 +216,12 @@ Little-Free-Library/
 │   ├── retrieval.py             # Hybrid retrieval
 │   ├── profiles.py              # Embedding profiles
 │   ├── cli.py                   # Main CLI
+│   ├── ingest/                  # Drop-folder ingestion pipeline
+│   │   ├── types.py             # Dataclasses (DiscoveredFile, ExtractedDoc, etc.)
+│   │   ├── detect.py            # MIME detection, SHA256 hashing, file discovery
+│   │   ├── convert.py           # LibreOffice headless conversion
+│   │   ├── extract.py           # Format extractors (PDF, DOCX, XLSX, HTML, TXT)
+│   │   └── pipeline.py          # 9-stage orchestration
 │   └── profiles/                # Profile configs
 │
 ├── corpora/                     # Knowledge corpora
@@ -219,18 +230,22 @@ Little-Free-Library/
 │       ├── sources.json        # Source provenance
 │       └── chunks/             # Chunk files
 │
+├── ingestion/                   # Drop folder for raw documents (gitignored)
+├── ingestion_out/               # Ingestion artifacts/manifests (gitignored)
+│
 ├── docs/                        # Documentation
 │   ├── KB/                     # Knowledge base
 │   ├── SOP/                    # Standard operating procedures
 │   ├── api/                    # Sphinx API docs
-│   ├── ARCHITECTURE.md         # Architecture diagrams
-│   ├── QUICKSTART.md           # Quick start guide
-│   └── contributing-guide.md   # Contribution guide
+│   └── QUICKSTART.md           # Quick start guide
 │
 ├── scripts/                     # Utility scripts
-│   ├── pxctx                   # Context management (if available)
+│   ├── check_forbidden_files.py # Pre-commit file guard
 │   ├── validate_corpus.py      # Corpus validation
-│   └── ingest.py               # Ingestion scripts
+│   └── ingest.py               # HF export script
+│
+├── .github/workflows/           # CI workflows
+│   └── validate-files.yml      # Forbidden files + corpus validation
 │
 ├── tests/                       # Test suite (if exists)
 ├── setup.py                     # Package setup
@@ -248,7 +263,11 @@ Little-Free-Library/
 | `embeddings.py` | Generate vectors | 287 | Low |
 | `retrieval.py` | Hybrid search | 247 | Medium |
 | `profiles.py` | Profile management | 130 | Low |
-| `cli.py` | CLI interface | 194 | Low |
+| `cli.py` | CLI interface | 273 | Medium |
+| `ingest/detect.py` | MIME detection + discovery | 162 | Low |
+| `ingest/convert.py` | LibreOffice wrappers | 114 | Low |
+| `ingest/extract.py` | Format extractors | 284 | Medium |
+| `ingest/pipeline.py` | Ingestion orchestration | 452 | High |
 
 ### Code Flow for Common Operations
 
@@ -282,6 +301,28 @@ corpus_validation.py:validate_sources_json()
 corpus_validation.py:check_source_references()
     ↓
 Output: Validation report (pass/fail + errors)
+```
+
+**Ingesting Documents (Drop-Folder):**
+
+```
+User runs: lfl ingest programming
+    ↓
+cli.py:cmd_ingest()
+    ↓
+ingest/pipeline.py:ingest_directory()
+    ↓
+  Stage 1: ingest/detect.py:discover_files()      # Scan and classify files
+  Stage 2: ingest/convert.py:convert_with_libreoffice()  # Convert if needed
+  Stage 3: ingest/extract.py:extract_text()        # PDF/DOCX/XLSX/HTML/TXT
+  Stage 4: chunking.py:chunk_document()            # Chunk with YAML frontmatter
+  Stage 5: Write chunks to corpora/<domain>/chunks/
+  Stage 6: Update sources.json with provenance
+  Stage 7: corpus_validation.py:validate_corpus()  # Validate output
+  Stage 8: embeddings.py (optional, if --embed)    # Generate vectors
+  Stage 9: Write manifest to ingestion_out/<domain>/manifest.json
+    ↓
+Output: Corpus-ready chunks + sources.json + manifest
 ```
 
 ---

@@ -1,6 +1,6 @@
 # Little Free Library — Quick Start Guide
 
-**Last Updated**: February 26, 2026  
+**Last Updated**: February 27, 2026  
 **Version**: 1.0.0
 
 ---
@@ -27,6 +27,29 @@ This installs the `lfl` command-line tool.
 
 ---
 
+## Accessing Pre-built Datasets
+
+Completed datasets from Little Free Library are published to Hugging Face after ingestion:
+
+**Organization:** [https://huggingface.co/LittleFreeLibrary](https://huggingface.co/LittleFreeLibrary)
+
+To use a pre-built dataset in your own RAG pipeline:
+
+```python
+from datasets import load_dataset
+
+# Load a specific corpus
+ds = load_dataset("LittleFreeLibrary/programming")
+
+# Use directly with your RAG system
+for item in ds:
+    print(item["title"], item["content"])
+```
+
+The sections below explain how to **create and validate** your own corpora using the LFL toolkit.
+
+---
+
 ## Usage
 
 ### 1. Validate a Corpus
@@ -48,7 +71,62 @@ Add `--strict` to fail on warnings:
 lfl validate corpora/programming --strict
 ```
 
-### 2. Benchmark Retrieval Quality
+### 2. Ingest Documents (Drop-Folder Workflow)
+
+Build a corpus from your own documents (PDF, DOCX, XLSX, HTML, TXT, etc.):
+
+```bash
+# Install ingestion dependencies
+pip install "lfl[all_ingest]"
+
+# Create a drop folder for your domain
+mkdir -p ingestion/my_domain
+
+# Drop files in
+cp ~/Documents/guide.pdf ingestion/my_domain/
+cp ~/Documents/notes.txt ingestion/my_domain/
+
+# Run ingestion (dry-run first)
+lfl ingest my_domain --inventory
+
+# Run for real
+lfl ingest my_domain
+```
+
+This will:
+1. Scan `ingestion/my_domain/` for supported files
+2. Convert formats if needed (Pages → PDF via LibreOffice)
+3. Extract text (with OCR fallback for scanned PDFs)
+4. Chunk documents into `corpora/my_domain/chunks/`
+5. Generate `sources.json` with SHA256 provenance
+6. Validate the corpus structure
+7. Write a manifest to `ingestion_out/my_domain/manifest.json`
+
+**Re-running is idempotent** — duplicate chunks are skipped by default:
+
+```bash
+# Skip duplicates (default)
+lfl ingest my_domain --on-duplicate skip
+
+# Overwrite existing
+lfl ingest my_domain --on-duplicate overwrite
+```
+
+**With embeddings:**
+
+```bash
+lfl ingest my_domain --embed --profile baseline_cpu_onnx_small
+```
+
+**Custom chunking:**
+
+```bash
+lfl ingest my_domain --strategy heading_aware --chunk-size 600 --overlap 80
+```
+
+**Supported formats:** PDF, DOCX, XLSX, HTML, TXT, Markdown. With LibreOffice installed: Pages, Numbers, Keynote, legacy Office (DOC, XLS, PPT).
+
+### 3. Benchmark Retrieval Quality
 
 Run a benchmark to measure how well your corpus performs in retrieval:
 
@@ -94,7 +172,7 @@ This will:
 ============================================================
 ```
 
-### 3. Tune Parameters with Sweep
+### 4. Tune Parameters with Sweep
 
 Want to find the best chunking configuration? Run a parameter sweep:
 
@@ -126,7 +204,7 @@ Best configuration:
   final_score=0.921  recall@3=0.912
 ```
 
-### 4. Compare Historical Reports
+### 5. Compare Historical Reports
 
 All benchmark reports are saved to `corpora/<domain>/benchmarks/`. Compare them:
 
@@ -136,7 +214,7 @@ lfl benchmark compare corpora/programming
 
 This shows all saved reports ranked by score, letting you track quality improvements over time.
 
-### 5. Custom Benchmark Parameters
+### 6. Custom Benchmark Parameters
 
 Fine-tune your benchmark run:
 
