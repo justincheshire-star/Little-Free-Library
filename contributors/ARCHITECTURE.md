@@ -11,7 +11,8 @@ This document provides visual representations of the toolkit's architecture, dat
 5. [CLI Command Structure](#cli-command-structure)
 6. [Embedding Pipeline](#embedding-pipeline)
 7. [Validation Flow](#validation-flow)
-8. [Benchmarking System](#benchmarking-system)
+8. [Error Code System](#error-code-system)
+9. [Benchmarking System](#benchmarking-system)
 
 ---
 
@@ -110,6 +111,7 @@ graph TB
 - **Ingestion Layer**: Detect, convert, and extract text from arbitrary document formats
 - **Chunking Engine**: Transforms raw/extracted text into structured chunks
 - **Validation System**: Ensures corpus quality and metadata completeness
+- **Error Diagnostic System**: 38 structured error codes (`LFL-XNNN`) across 7 categories with actionable resolution steps
 - **Embedding Manager**: Generates and manages vector representations
 - **Retrieval Layer**: Hybrid search combining BM25 and vector search
 - **Quality Layer**: Automated benchmarking and quality assessment
@@ -395,6 +397,8 @@ graph TB
         Chunk[lfl chunk<br/>Document → Chunks]
         Validate[lfl validate<br/>Check Metadata]
         Benchmark[lfl benchmark<br/>Quality Testing]
+        ErrorCodes[lfl error-codes<br/>List All Codes]
+        ExplainError[lfl explain-error<br/>Diagnose Code]
         Version[lfl version<br/>Show Version]
     end
     
@@ -435,6 +439,8 @@ graph TB
     Main --> Chunk
     Main --> Validate
     Main --> Benchmark
+    Main --> ErrorCodes
+    Main --> ExplainError
     Main --> Version
     
     Ingest --> I1 & I2 & I3 & I4 & I5 & I6
@@ -452,6 +458,8 @@ graph TB
     style Chunk fill:#c8e6c9
     style Validate fill:#fff9c4
     style Benchmark fill:#ffecb3
+    style ErrorCodes fill:#ffcdd2
+    style ExplainError fill:#ffcdd2
     style Version fill:#f3e5f5
 ```
 
@@ -469,6 +477,10 @@ lfl chunk input.md output/ --strategy heading_aware --chunk-size 500
 
 # Validate corpus
 lfl validate corpora/programming --strict
+
+# Error diagnostics
+lfl error-codes                              # list all 38 codes
+lfl explain-error LFL-E101                   # diagnose a specific code
 
 # Benchmark quality
 lfl benchmark run corpora/programming
@@ -668,6 +680,71 @@ flowchart TD
 
 ---
 
+## Error Code System
+
+Structured diagnostic codes for the entire ingestion pipeline:
+
+```mermaid
+graph TB
+    subgraph "Error Code Format"
+        Format["LFL-XNNN<br/>X = Category letter<br/>NNN = 3-digit number"]
+    end
+    
+    subgraph "7 Error Categories"
+        D["D1xx — Detection<br/>4 codes"]
+        C["C2xx — Conversion<br/>4 codes"]
+        E["E1xx — Extraction<br/>14 codes"]
+        K["K3xx — Chunking<br/>6 codes"]
+        V["V4xx — Validation<br/>5 codes"]
+        M["M5xx — Embedding<br/>4 codes"]
+        P["P6xx — Pipeline<br/>4 codes"]
+    end
+    
+    subgraph "Error Object"
+        Err["IngestionError (frozen dataclass)<br/>code, severity, summary,<br/>detail, resolution,<br/>file_path, context"]
+    end
+    
+    subgraph "Output Channels"
+        CLI["CLI: lfl error-codes<br/>lfl explain-error"]
+        Manifest["manifest.json:<br/>error_code + structured_errors"]
+        Validate["Validation report:<br/>[LFL-K3xx] prefixed errors"]
+    end
+    
+    Format --> D & C & E & K & V & M & P
+    D & C & E & K & V & M & P --> Err
+    Err --> CLI & Manifest & Validate
+    
+    style Format fill:#e3f2fd
+    style D fill:#ffe0b2
+    style C fill:#ffe0b2
+    style E fill:#ffcdd2
+    style K fill:#fff9c4
+    style V fill:#fff9c4
+    style M fill:#f3e5f5
+    style P fill:#f3e5f5
+    style Err fill:#c8e6c9
+```
+
+**Error Code Categories:**
+
+| Prefix | Category | Codes | Module |
+|--------|----------|-------|--------|
+| `D1xx` | Detection | D100–D103 | `ingest/detect.py` |
+| `C2xx` | Conversion | C200–C203 | `ingest/convert.py` |
+| `E1xx` | Extraction | E100–E113 | `ingest/extract.py` |
+| `K3xx` | Chunking | K300–K305 | `corpus_validation.py` |
+| `V4xx` | Validation | V400–V404 | `corpus_validation.py` |
+| `M5xx` | Embedding | M500–M503 | `embeddings.py` |
+| `P6xx` | Pipeline | P600–P603 | `ingest/pipeline.py` |
+
+**Key Files:**
+- `lfl/ingest/errors.py` — Error catalogue, factory functions, `IngestionError` dataclass
+- `docs/ERROR_CODES.md` — User-facing reference documentation
+
+See [Error Code Reference](../docs/ERROR_CODES.md) for the full catalogue.
+
+---
+
 ## Benchmarking System
 
 Automated quality assessment workflow:
@@ -838,4 +915,4 @@ results = retriever.retrieve("query", top_k=10)
 
 ---
 
-*Architecture documentation for Little Free Library Toolkit v1.0.0*
+*Architecture documentation for Little Free Library Toolkit v1.0.0 — Updated with error code system*

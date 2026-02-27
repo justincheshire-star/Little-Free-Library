@@ -221,6 +221,7 @@ Little-Free-Library/
 │   │   ├── detect.py            # MIME detection, SHA256 hashing, file discovery
 │   │   ├── convert.py           # LibreOffice headless conversion
 │   │   ├── extract.py           # Format extractors (PDF, DOCX, XLSX, HTML, TXT)
+│   │   ├── errors.py            # 38 structured error codes (LFL-XNNN)
 │   │   └── pipeline.py          # 9-stage orchestration
 │   └── profiles/                # Profile configs
 │
@@ -237,6 +238,7 @@ Little-Free-Library/
 │   ├── KB/                     # Knowledge base
 │   ├── SOP/                    # Standard operating procedures
 │   ├── api/                    # Sphinx API docs
+│   ├── ERROR_CODES.md          # Error code reference (38 codes)
 │   └── QUICKSTART.md           # Quick start guide
 │
 ├── scripts/                     # Utility scripts
@@ -267,6 +269,7 @@ Little-Free-Library/
 | `ingest/detect.py` | MIME detection + discovery | 162 | Low |
 | `ingest/convert.py` | LibreOffice wrappers | 114 | Low |
 | `ingest/extract.py` | Format extractors | 284 | Medium |
+| `ingest/errors.py` | Error codes & diagnostics | ~500 | Low |
 | `ingest/pipeline.py` | Ingestion orchestration | 452 | High |
 
 ### Code Flow for Common Operations
@@ -324,6 +327,20 @@ ingest/pipeline.py:ingest_directory()
     ↓
 Output: Corpus-ready chunks + sources.json + manifest
 ```
+
+**Diagnosing an Error:**
+
+```
+User runs: lfl explain-error LFL-E101
+    ↓
+cli.py:cmd_explain_error()
+    ↓
+ingest/errors.py:lookup_error_code("LFL-E101")
+    ↓
+Output: Code, severity, summary, and resolution steps
+```
+
+All pipeline errors are reported with structured `LFL-XNNN` codes. See [Error Code Reference](../docs/ERROR_CODES.md) for the full catalogue.
 
 ---
 
@@ -497,6 +514,7 @@ How did you test this? Include commands or code snippets.
 - [ ] Added/updated tests
 - [ ] Added/updated documentation
 - [ ] CHANGELOG.md updated
+- [ ] Session summary updated for today (see [Documentation SOP](../docs/SOP/DOCUMENTATION_SOP.md#-session-summary-updates-required))
 - [ ] All tests passing
 - [ ] No merge conflicts
 
@@ -747,6 +765,7 @@ When contributing code:
 - [ ] Docstrings added/updated
 - [ ] README.md updated (if user-facing feature)
 - [ ] CHANGELOG.md updated (add entry under "Unreleased")
+- [ ] Session summary updated for today (`docs/Session Reviews/YYYY/MM-month/SESSION_SUMMARY_<MMMDD>_<YYYY>.md`)
 - [ ] Examples added (in docstring or examples.rst)
 - [ ] API docs updated (if Sphinx docs exist)
 - [ ] Architecture diagrams updated (if architecture changed)
@@ -770,8 +789,9 @@ make serve  # View at http://localhost:8000
 2. ✅ Tests added/updated and passing
 3. ✅ Documentation updated
 4. ✅ CHANGELOG.md updated
-5. ✅ No merge conflicts with main branch
-6. ✅ Commits have clear messages
+5. ✅ Session summary updated for today (one file per day, amend as you go)
+6. ✅ No merge conflicts with main branch
+7. ✅ Commits have clear messages
 
 ### PR Review Criteria
 

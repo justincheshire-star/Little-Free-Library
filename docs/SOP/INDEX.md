@@ -70,6 +70,8 @@ Frame every corpus contribution with quality validation:
 | Validate (strict)      | `lfl validate corpora/<domain> --strict`  |
 | Ingest documents       | `lfl ingest <domain>`                     |
 | Ingest dry-run         | `lfl ingest <domain> --inventory`         |
+| List error codes       | `lfl error-codes`                         |
+| Diagnose error code    | `lfl explain-error <code>`                |
 | Validate embeddings    | `python scripts/validate_vectorset.py`    |
 | Export for Hugging Face| `python scripts/ingest.py`                |
 | Test pxctx integration | `python -m docs.KB.Vector_RAG.pxctx test` |

@@ -1,5 +1,7 @@
 """
 Document conversion utilities (LibreOffice, Pandoc wrappers).
+
+Raises structured IngestionError codes (LFL-C2xx) on failure.
 """
 
 from __future__ import annotations
@@ -8,6 +10,14 @@ import shutil
 import subprocess
 from pathlib import Path
 from typing import Literal
+
+from .errors import (
+    C200_libreoffice_not_found,
+    C201_conversion_timeout,
+    C202_conversion_failed,
+    C203_conversion_output_missing,
+    IngestionError,
+)
 
 
 def has_libreoffice() -> bool:
@@ -39,17 +49,13 @@ def convert_with_libreoffice(
         Path to converted file
         
     Raises:
-        FileNotFoundError: LibreOffice not installed
-        subprocess.TimeoutExpired: Conversion timed out
-        RuntimeError: Conversion failed
+        FileNotFoundError: LibreOffice not installed (LFL-C200)
+        subprocess.TimeoutExpired: Conversion timed out (LFL-C201)
+        RuntimeError: Conversion failed (LFL-C202, LFL-C203)
     """
     if not has_libreoffice():
-        raise FileNotFoundError(
-            "LibreOffice not found. Install with:\n"
-            "  macOS: brew install libreoffice\n"
-            "  Ubuntu: sudo apt install libreoffice\n"
-            "  Windows: Download from https://www.libreoffice.org/"
-        )
+        err = C200_libreoffice_not_found()
+        raise FileNotFoundError(err.verbose_message())
     
     output_dir.mkdir(parents=True, exist_ok=True)
     
@@ -70,24 +76,23 @@ def convert_with_libreoffice(
             check=True,
         )
     except subprocess.TimeoutExpired:
+        err = C201_conversion_timeout(str(input_path), timeout)
         raise subprocess.TimeoutExpired(
             cmd=cmd,
             timeout=timeout,
-            output=f"LibreOffice conversion timed out after {timeout}s",
+            output=err.verbose_message(),
         )
     except subprocess.CalledProcessError as e:
-        raise RuntimeError(
-            f"LibreOffic conversion failed:\n{e.stderr}"
-        )
+        err = C202_conversion_failed(str(input_path), e.stderr or "")
+        raise RuntimeError(err.verbose_message()) from e
     
     # Find converted file
     expected_name = input_path.stem + f'.{target_format}'
     converted_path = output_dir / expected_name
     
     if not converted_path.exists():
-        raise RuntimeError(
-            f"Conversion succeeded but output file not found: {converted_path}"
-        )
+        err = C203_conversion_output_missing(str(input_path), str(converted_path))
+        raise RuntimeError(err.verbose_message())
     
     return converted_path
 

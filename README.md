@@ -312,6 +312,26 @@ lfl benchmark compare corpora/programming
 - `vector` — Semantic vector search (requires fastembed/sentence-transformers)
 - `hybrid` — Combines BM25 + vector with Reciprocal Rank Fusion (RRF)
 
+#### `lfl error-codes` — List All Error Codes
+
+Display the complete catalogue of structured error codes used by the ingestion pipeline:
+
+```bash
+# Show all 38 error codes with severity and description
+lfl error-codes
+```
+
+#### `lfl explain-error` — Diagnose an Error Code
+
+Look up a specific error code for detailed diagnosis and resolution steps:
+
+```bash
+# Get full details for a specific error
+lfl explain-error LFL-E101
+```
+
+See the [Error Code Reference](docs/ERROR_CODES.md) for the complete catalogue.
+
 #### `lfl version` — Show Toolkit Version
 
 ```bash
@@ -365,6 +385,7 @@ lfl benchmark sweep corpora/programming
 
 **Technical Reference:**
 - [API Reference](docs/api/) — Sphinx-generated API documentation
+- [Error Code Reference](docs/ERROR_CODES.md) — All 38 ingestion error codes with diagnosis and fixes
 - [IMPLEMENTATION_REPORT_2026-02-26.md](docs/IMPLEMENTATION_REPORT_2026-02-26.md) — Implementation details
 - [CHANGELOG.md](CHANGELOG.md) — Version history and features
 - [Licensing Guide](docs/licensing-guide.md) — Licensing and attribution

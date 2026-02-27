@@ -177,30 +177,34 @@ Python docs are PSF-2.0 licensed (Tier 1 compatible)
 
 ---
 
-## 📝 Session Summary (Optional)
+## 📝 Session Summary (Required)
 
-For significant work sessions, create a summary.
+A session summary is **mandatory** for every day that work is performed. Update it incrementally as you work (amend-as-you-go), not just at the end. See [Documentation SOP — Session Summary Updates](DOCUMENTATION_SOP.md#-session-summary-updates-required) for the full specification.
 
 ### File Nomenclature
 
-**Location**: `docs/Session Reviews/YYYY/MM-month/SESSION_SUMMARY_MONDD_YYYY.md`
+**Location**: `docs/Session Reviews/YYYY/MM-month/SESSION_SUMMARY_<MMM><DD>_<YYYY>.md`
 
-**Template**: See [SESSION_REVIEW_TEMPLATE.md](SESSION_REVIEW_TEMPLATE.md)
+**Template**: See [SESSION_REVIEW_TEMPLATE.md](SESSION_REVIEW_TEMPLATE.md) — format is required, not optional.
 
 **Naming Convention**:
-- Use format: `SESSION_SUMMARY_<MONTH><DAY>_<YEAR>.md`
+- Use format: `SESSION_SUMMARY_<MMM><DD>_<YYYY>.md`
+- `<MMM>` — Three-letter month abbreviation, UPPERCASE
+- `<DD>` — Two-digit day (zero-padded, 01–31)
+- `<YYYY>` — Four-digit year
 - Examples: `SESSION_SUMMARY_FEB26_2026.md`, `SESSION_SUMMARY_MAR15_2026.md`
-- Month abbreviation: JAN, FEB, MAR, APR, MAY, JUN, JUL, AUG, SEP, OCT, NOV, DEC
-- Day: Zero-padded (01-31)
-- Year: Four digits
+
+**Directory Convention**:
+- `docs/Session Reviews/YYYY/MM-month/` (e.g., `2026/02-february/`)
+- `MM` is zero-padded month number, `month` is lowercase full month name
 
 ### One Summary Per Day Rule
 
 **IMPORTANT**: Create **ONE session summary per day**, regardless of how many work segments occur.
 
 **If multiple work segments on same day:**
-- Create a single consolidated summary
-- Use section headers to distinguish work segments (e.g., "Segment 1: ...", "Segment 2: ...")
+- Amend the existing file — never create a second
+- Use section headers to distinguish work segments (e.g., "### Segment 1: ...", "### Segment 2: ...")
 - Merge all work into unified sections (Work Completed, Key Decisions, etc.)
 - List all commits from all segments in one Commits section
 - Provide combined statistics and metrics
@@ -211,9 +215,20 @@ For significant work sessions, create a summary.
 - Cleaner session review directory
 - Better historical record
 
-**Example**:
-- ❌ Wrong: `SESSION_COMPLETION_FEB26_2026.md` + `SESSION_EMBEDDING_MODELS_FEB26_2026.md`
-- ✅ Right: `SESSION_SUMMARY_FEB26_2026.md` (consolidates both work segments)
+**Examples**:
+- `SESSION_SUMMARY_FEB27_2026.md` ✅
+- `SESSION_SUMMARY_MAR01_2026.md` ✅
+- `session_summary_feb27_2026.md` ❌ (wrong case)
+- `SESSION_SUMMARY_2026-02-27.md` ❌ (wrong date format)
+- `SESSION_SUMMARY_FEB27_2026_v2.md` ❌ (no versioned files — amend the original)
+
+### Amend-as-you-go
+
+Do not wait until the end of a session to write the summary. Update it incrementally:
+
+1. **Session start** — Create file (or open existing), fill in goals
+2. **During work** — Amend Work Completed, Key Decisions, Blockers as they occur
+3. **Before commit** — Update Validation Results, Commits, Next Steps, Session Metrics
 
 ---
 
@@ -226,6 +241,7 @@ Before starting work:
 - [ ] Corpus status understood
 - [ ] Validations checked
 - [ ] Session goals defined
+- [ ] Today's session summary file created or opened
 - [ ] Ready to contribute
 
 ---

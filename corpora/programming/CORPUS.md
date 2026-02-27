@@ -6,10 +6,10 @@
 |---|---|
 | **Domain** | `programming` |
 | **Version** | `1.0.0` |
-| **Status** | `draft` |
+| **Status** | `stable` |
 | **License (corpus data)** | CC-BY-SA 4.0 |
 | **Maintainer** | Little Free Library Contributors |
-| **Last Updated** | <!-- YYYY-MM-DD --> |
+| **Last Updated** | 2026-02-27 |
 
 ---
 
@@ -31,6 +31,17 @@ The `programming` corpus covers foundational and advanced programming concepts, 
 | `design-patterns` | Software design patterns |
 
 *(Extend this table as new subdomains are added.)*
+
+---
+
+## Statistics
+
+| Metric | Value |
+|---|---|
+| **Sources** | 22 |
+| **Chunks** | 594 |
+| **Embeddings** | 594 vectors (384-dim, float32) |
+| **Embedding Profile** | `baseline_cpu_onnx_small` (bge-small-en-v1.5) |
 
 ---
 
@@ -78,7 +89,12 @@ Run the corpus validator before submitting changes:
 
 ```bash
 python scripts/validate_corpus.py corpora/programming/chunks/
+
+# Or using the lfl CLI
+lfl validate corpora/programming
 ```
+
+Validation errors are reported with structured [LFL error codes](../../docs/ERROR_CODES.md) (e.g., `[LFL-K300]` for missing frontmatter).
 
 ---
 

@@ -8,6 +8,8 @@ Validates corpus directories for:
 - sources.json validity
 - Source ID consistency
 - Orphaned sources detection
+
+Error codes: LFL-K3xx (chunk/frontmatter), LFL-V4xx (validation/sources).
 """
 
 from __future__ import annotations
@@ -16,6 +18,15 @@ import json
 from pathlib import Path
 from typing import Literal
 import yaml
+
+from lfl.ingest.errors import (
+    K300_no_frontmatter,
+    K301_frontmatter_parse_error,
+    K302_missing_required_field,
+    K303_wrong_field_type,
+    K304_importance_out_of_range,
+    IngestionError,
+)
 
 
 REQUIRED_FIELDS = [
@@ -73,30 +84,45 @@ def validate_chunk(filepath: Path) -> list[str]:
     Validate a single chunk file.
     
     Returns a list of error strings. An empty list means the chunk is valid.
+    Each error string is prefixed with the error code for easy lookup.
     """
     errors = []
     
     try:
         frontmatter = parse_frontmatter(filepath)
     except ValueError as exc:
-        return [str(exc)]
+        exc_str = str(exc)
+        # Map to specific error codes
+        if "does not begin with YAML" in exc_str:
+            ie = K300_no_frontmatter(str(filepath))
+        elif "Invalid YAML" in exc_str or "Could not find closing" in exc_str:
+            ie = K301_frontmatter_parse_error(str(filepath), exc_str)
+        else:
+            ie = K301_frontmatter_parse_error(str(filepath), exc_str)
+        return [f"[{ie.code}] {exc_str}"]
     
     for field in REQUIRED_FIELDS:
         if field not in frontmatter or frontmatter[field] is None or frontmatter[field] == "":
-            errors.append(f"Missing or empty required field: '{field}'")
+            ie = K302_missing_required_field(str(filepath), field)
+            errors.append(f"[{ie.code}] Missing or empty required field: '{field}'")
             continue
         
         expected_type = FIELD_TYPES.get(field)
         if expected_type and not isinstance(frontmatter[field], expected_type):
+            ie = K303_wrong_field_type(
+                str(filepath), field,
+                str(expected_type), type(frontmatter[field]).__name__,
+            )
             errors.append(
-                f"Field '{field}' has wrong type: expected {expected_type}, "
+                f"[{ie.code}] Field '{field}' has wrong type: expected {expected_type}, "
                 f"got {type(frontmatter[field]).__name__}"
             )
     
     importance = frontmatter.get("importance")
     if isinstance(importance, (int, float)) and not (0.0 <= importance <= 1.0):
+        ie = K304_importance_out_of_range(str(filepath), importance)
         errors.append(
-            f"Field 'importance' must be between 0.0 and 1.0, got {importance}"
+            f"[{ie.code}] Field 'importance' must be between 0.0 and 1.0, got {importance}"
         )
     
     return errors

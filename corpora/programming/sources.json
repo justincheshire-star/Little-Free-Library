@@ -33,6 +33,150 @@
       "url": "https://restfulapi.net/",
       "retrieved_at": "2026-02-26",
       "notes": "Creative Commons Attribution 4.0"
+    },
+    {
+      "id": "local_19385ae3",
+      "name": "Essential_C++",
+      "url": "file://ingestion/programming/Essential_C++.pdf",
+      "license": "unknown",
+      "retrieval_date": "2026-02-27",
+      "notes": "Ingested via lfl ingest. Type: pdf. Method: native. SHA256: 19385ae33604d78ce21e9fed48d82617cbf11a341a2ec9f6f824f2363cd5f946. Review and update license before publishing."
+    },
+    {
+      "id": "local_0371ae12",
+      "name": "Regulatory Safeguards Bot Prompt-PDF",
+      "url": "file://ingestion/programming/Regulatory Safeguards Bot Prompt-PDF.pdf",
+      "license": "unknown",
+      "retrieval_date": "2026-02-27",
+      "notes": "Ingested via lfl ingest. Type: pdf. Method: native. SHA256: 0371ae12940d0024f6d585491f99955a706a1209ef7850b139827c884df145e8. Review and update license before publishing."
+    },
+    {
+      "id": "local_a1dd2a38",
+      "name": "Sample_C_Code",
+      "url": "file://ingestion/programming/Sample_C_Code.pdf",
+      "license": "unknown",
+      "retrieval_date": "2026-02-27",
+      "notes": "Ingested via lfl ingest. Type: pdf. Method: native. SHA256: a1dd2a38ee0894ada676078f69d4712ea0d63803def69bc4f10d324ec4aa9ef1. Review and update license before publishing."
+    },
+    {
+      "id": "local_19345631",
+      "name": "Programming_on_Unix",
+      "url": "file://ingestion/programming/Programming_on_Unix.pdf",
+      "license": "unknown",
+      "retrieval_date": "2026-02-27",
+      "notes": "Ingested via lfl ingest. Type: pdf. Method: native. SHA256: 193456312a1d1c633d7cccd28f9aa7c18caedfc538d124447bd0c1f7211cba00. Review and update license before publishing."
+    },
+    {
+      "id": "local_7a00400f",
+      "name": "Decomposition_and_Style",
+      "url": "file://ingestion/programming/Decomposition_and_Style.pdf",
+      "license": "unknown",
+      "retrieval_date": "2026-02-27",
+      "notes": "Ingested via lfl ingest. Type: pdf. Method: native. SHA256: 7a00400fa30f4dfa7216ef439969e4bede8b2ad3bac217f0d7ccf3e4f357ec07. Review and update license before publishing."
+    },
+    {
+      "id": "local_7dc33f4f",
+      "name": "LISP_Examples",
+      "url": "file://ingestion/programming/LISP_Examples.pdf",
+      "license": "unknown",
+      "retrieval_date": "2026-02-27",
+      "notes": "Ingested via lfl ingest. Type: pdf. Method: native. SHA256: 7dc33f4f6a1147dadd0d532ca392bf36abf48900cab34fa60000010b8a428fe9. Review and update license before publishing."
+    },
+    {
+      "id": "local_eed87a82",
+      "name": "Metal-Shading-Language-Specification",
+      "url": "file://ingestion/programming/Metal-Shading-Language-Specification.pdf",
+      "license": "unknown",
+      "retrieval_date": "2026-02-27",
+      "notes": "Ingested via lfl ingest. Type: pdf. Method: native. SHA256: eed87a82d4d2d475423b91b3c529c5313a85433f83e22b7fe3ec50e90254f44a. Review and update license before publishing."
+    },
+    {
+      "id": "local_335d5b86",
+      "name": "Debugging",
+      "url": "file://ingestion/programming/Debugging.pdf",
+      "license": "unknown",
+      "retrieval_date": "2026-02-27",
+      "notes": "Ingested via lfl ingest. Type: pdf. Method: native. SHA256: 335d5b86a6368fd29fb14a6b0a5013ab5fcc3492f9a09739b1ca3d1fdb3e2b42. Review and update license before publishing."
+    },
+    {
+      "id": "local_cf27a20f",
+      "name": "saas-architecture-fundamentals",
+      "url": "file://ingestion/programming/saas-architecture-fundamentals.pdf",
+      "license": "unknown",
+      "retrieval_date": "2026-02-27",
+      "notes": "Ingested via lfl ingest. Type: pdf. Method: native. SHA256: cf27a20fb1f145e79efe1ee7b4ffa03d7042e5f25aeb29fef054567122523bb9. Review and update license before publishing."
+    },
+    {
+      "id": "local_de1c7960",
+      "name": "Regulatory K-Base_PDF",
+      "url": "file://ingestion/programming/Regulatory K-Base_PDF.pdf",
+      "license": "unknown",
+      "retrieval_date": "2026-02-27",
+      "notes": "Ingested via lfl ingest. Type: pdf. Method: native. SHA256: de1c7960b0fac907244d44a1d4266741d06cf8a872ebc6757bba74f63d743d58. Review and update license before publishing."
+    },
+    {
+      "id": "local_38cef678",
+      "name": "Essential_C",
+      "url": "file://ingestion/programming/Essential_C.pdf",
+      "license": "unknown",
+      "retrieval_date": "2026-02-27",
+      "notes": "Ingested via lfl ingest. Type: pdf. Method: native. SHA256: 38cef678043eea0be8dd86eb7bb3222b68694b4c4c321d9e913d466980a4eda8. Review and update license before publishing."
+    },
+    {
+      "id": "local_a58626b7",
+      "name": "Practical_HI_Examples",
+      "url": "file://ingestion/programming/Practical_HI_Examples.pdf",
+      "license": "unknown",
+      "retrieval_date": "2026-02-27",
+      "notes": "Ingested via lfl ingest. Type: pdf. Method: native. SHA256: a58626b714c665d3969f97863bd726baca06b04b5f87997eb3f325e6be9533de. Review and update license before publishing."
+    },
+    {
+      "id": "local_568115dd",
+      "name": "Documentation",
+      "url": "file://ingestion/programming/Documentation.pdf",
+      "license": "unknown",
+      "retrieval_date": "2026-02-27",
+      "notes": "Ingested via lfl ingest. Type: pdf. Method: native. SHA256: 568115dd99d082c1f9f0bdb9136508b96f28c30e2610d2aa4fb9355796f7a2b9. Review and update license before publishing."
+    },
+    {
+      "id": "local_ba52fd3f",
+      "name": "Liquid Glass K Base",
+      "url": "file://ingestion/programming/Liquid Glass K Base.pdf",
+      "license": "unknown",
+      "retrieval_date": "2026-02-27",
+      "notes": "Ingested via lfl ingest. Type: pdf. Method: native. SHA256: ba52fd3f91b6b18f2199c419ce1454f43dc5732d6cd93d19b84acd799772ea05. Review and update license before publishing."
+    },
+    {
+      "id": "local_90ec5b4c",
+      "name": "UX Design Principles and Guidelines",
+      "url": "file://ingestion/programming/UX Design Principles and Guidelines.pdf",
+      "license": "unknown",
+      "retrieval_date": "2026-02-27",
+      "notes": "Ingested via lfl ingest. Type: pdf. Method: native. SHA256: 90ec5b4c0e6619b70a7476b027a7c04522f24b884c0b47cc4978f38eb5f4bdd3. Review and update license before publishing."
+    },
+    {
+      "id": "local_b8bac13c",
+      "name": "First Party K-Base 1",
+      "url": "file://ingestion/programming/First Party K-Base 1.pdf",
+      "license": "unknown",
+      "retrieval_date": "2026-02-27",
+      "notes": "Ingested via lfl ingest. Type: pdf. Method: native. SHA256: b8bac13c96b932356aa25b42df5a1cca0dffa9694c9f08a2a87312f488b270b3. Review and update license before publishing."
+    },
+    {
+      "id": "local_b8bef0cc",
+      "name": "AI Agent Project 1",
+      "url": "file://ingestion/programming/AI Agent Project 1.pdf",
+      "license": "unknown",
+      "retrieval_date": "2026-02-27",
+      "notes": "Ingested via lfl ingest. Type: pdf. Method: native. SHA256: b8bef0cc9d4208202503a2e44102dcd8badcd5a6b628fad6cc9a89840de07100. Review and update license before publishing."
+    },
+    {
+      "id": "local_f139bd26",
+      "name": "09-UX",
+      "url": "file://ingestion/programming/09-UX.pdf",
+      "license": "unknown",
+      "retrieval_date": "2026-02-27",
+      "notes": "Ingested via lfl ingest. Type: pdf. Method: native. SHA256: f139bd2667d679b7006c199cc1e6037bd50f5e33c87463acaab4747f5aa9f0df. Review and update license before publishing."
     }
   ]
 }

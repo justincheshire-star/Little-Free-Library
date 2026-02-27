@@ -257,15 +257,22 @@ def ingest_directory(
             manifest.files_extracted += 1
             
             if not extracted.text.strip() and not extracted.tables:
-                msg = "No text or tables extracted"
-                print(f"   ⚠️  {msg}")
+                # Use the most specific structured error from the extractor
+                se = extracted.structured_errors
+                primary = se[-1] if se else None
+                code = primary.code if primary else "LFL-E100"
+                msg = primary.cli_message() if primary else "No text or tables extracted"
+                print(f"   {msg}")
                 manifest.results.append(IngestionResult(
                     file_path=file_info.path,
                     sha256=file_info.sha256,
                     detected_type=effective_type,
                     extraction_method=extracted.extraction_method,
                     chunks_produced=0, status="failed",
-                    error=msg, warnings=extracted.warnings,
+                    error=msg,
+                    error_code=code,
+                    warnings=extracted.warnings,
+                    structured_errors=[e.to_dict() for e in se],
                 ))
                 manifest.failures += 1
                 continue
@@ -309,15 +316,19 @@ def ingest_directory(
             )
             
             if not chunks:
-                msg = "Chunking produced no output (text may be too short)"
-                print(f"   ⚠️  {msg}")
+                from .errors import P601_zero_chunks_from_file
+                err = P601_zero_chunks_from_file(str(file_info.path))
+                print(f"   {err.cli_message()}")
                 manifest.results.append(IngestionResult(
                     file_path=file_info.path,
                     sha256=file_info.sha256,
                     detected_type=effective_type,
                     extraction_method=extracted.extraction_method,
                     chunks_produced=0, status="failed",
-                    error=msg, warnings=extracted.warnings,
+                    error=err.summary,
+                    error_code=err.code,
+                    warnings=extracted.warnings,
+                    structured_errors=[err.to_dict()],
                 ))
                 manifest.failures += 1
                 continue
@@ -340,6 +351,8 @@ def ingest_directory(
             manifest.chunks_created += written
             manifest.chunks_updated += skipped
             
+            # Propagate any non-fatal structured warnings from extractor
+            se_dicts = [e.to_dict() for e in extracted.structured_errors] if extracted.structured_errors else []
             manifest.results.append(IngestionResult(
                 file_path=file_info.path,
                 sha256=file_info.sha256,
@@ -348,13 +361,18 @@ def ingest_directory(
                 chunks_produced=written,
                 status="success",
                 warnings=extracted.warnings,
+                structured_errors=se_dicts,
             ))
             
             skip_note = f" ({skipped} skipped as duplicates)" if skipped else ""
             print(f"   ✓ {written} chunk(s) written{skip_note}")
         
         except Exception as exc:
-            print(f"   ✗ Failed: {exc}")
+            from .errors import P603_unexpected_pipeline_error
+            err = P603_unexpected_pipeline_error(
+                str(file_info.path), "processing", str(exc),
+            )
+            print(f"   {err.cli_message()}")
             manifest.results.append(IngestionResult(
                 file_path=file_info.path,
                 sha256=file_info.sha256,
@@ -362,6 +380,8 @@ def ingest_directory(
                 extraction_method="failed",
                 chunks_produced=0, status="failed",
                 error=str(exc),
+                error_code=err.code,
+                structured_errors=[err.to_dict()],
             ))
             manifest.failures += 1
     

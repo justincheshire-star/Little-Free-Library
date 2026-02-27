@@ -71,6 +71,56 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Block images and archives (often ingestion input)
   - Preserve tracked model files (LFS) and curated corpora
 
+#### Structured Error Code System
+
+- **`lfl/ingest/errors.py`** — 38 structured error codes across 7 categories
+  - `LFL-D1xx` Detection (4 codes): Input directory, file type, empty directory, hidden files
+  - `LFL-C2xx` Conversion (4 codes): LibreOffice missing/timeout/failure/output
+  - `LFL-E1xx` Extraction (14 codes): Corrupt PDF, zlib streams, OCR fallback, encoding
+  - `LFL-K3xx` Chunking (6 codes): YAML frontmatter, missing fields, type mismatches
+  - `LFL-V4xx` Validation (5 codes): sources.json, cross-references, orphaned sources
+  - `LFL-M5xx` Embedding (4 codes): Model loading, dimension mismatch, encoding failure
+  - `LFL-P6xx` Pipeline (4 codes): Empty extraction, zero chunks, dedup, unexpected errors
+  - `IngestionError` frozen dataclass with `cli_message()`, `verbose_message()`, `to_dict()`
+  - `ERROR_CATALOGUE` registry with `lookup_error_code()` and `format_error_reference()`
+  - Integrated into all pipeline stages (extract, convert, pipeline, validation)
+
+- **New CLI commands** for error diagnostics
+  - `lfl error-codes` — List all 38 codes in a formatted table
+  - `lfl explain-error <code>` — Look up a specific code with summary + resolution
+
+- **`docs/ERROR_CODES.md`** — User-facing error code reference documentation
+  - All 38 codes with descriptions, causes, and fixes
+  - CLI usage examples and manifest JSON examples
+  - `jq` search commands for filtering error codes in manifests
+
+- **Structured error propagation in ingestion manifests**
+  - `IngestionResult` and `ExtractedDoc` now carry `error_code` and `structured_errors`
+  - Manifest JSON includes full error details with resolution steps
+  - Validation errors prefixed with `[LFL-K3xx]` codes
+
+#### Programming Corpus — PDF Ingestion
+
+- **22 PDF sources** ingested into `corpora/programming/`
+  - 18/19 PDFs succeeded → 590 chunks generated
+  - 1 PDF failed (corrupt zlib streams) → diagnosed with `LFL-E101`
+  - Sources added to `corpora/programming/sources.json`
+  - 594 total chunks validated (0 invalid)
+  - 594 embeddings generated (384-dim, float32, unit-normalized, 0.9 MB)
+
+#### Documentation SOP v2.1.0 — Session Summary Requirements
+
+- **Mandatory session summaries** added to Documentation SOP
+  - Session summaries elevated from optional to **required** (Tier 6)
+  - One file per day rule — exactly one `SESSION_SUMMARY_<MMMDD>_<YYYY>.md` per calendar day
+  - Strict nomenclature enforced with valid/invalid examples
+  - Amend-as-you-go workflow — update incrementally during session, not just at end
+  - Template required — must use `SESSION_REVIEW_TEMPLATE.md` format exactly
+  - Added to Contribution Type matrix as "Any commit (all types)" row
+  - Added to sweep algorithm as step 3 (before commit)
+  - Added to pre-commit checklist as "For All Contributions (Required)" section
+  - Failure mode defined: missing session summary = blocking documentation gap
+
 ### Fixed
 
 - **Embedding integration in `lfl ingest --embed`** — Three bugs in `pipeline.py` Stage 8:
@@ -78,6 +128,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `load_corpus()` received `str` path instead of `Path` (caused `str / str` TypeError)
   - Called `model.embed()` instead of correct `model.encode()` method
   - All three verified fixed via end-to-end test (TXT + HTML → 384-dim vectors)
+
+- **YAML frontmatter double-quote escaping** in `lfl/chunking.py`
+  - `save_chunk_to_markdown()` now escapes `\` and `"` in double-quoted YAML fields via `_esc()` helper
+  - Fixed 6 existing chunks with titles containing internal double quotes
+  - All 594 chunks validate cleanly after patch
 
 ---
 

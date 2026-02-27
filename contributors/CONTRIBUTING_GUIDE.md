@@ -36,6 +36,7 @@ little-free-library/
 │       ├── detect.py         # MIME detection, SHA256 hashing
 │       ├── convert.py        # LibreOffice conversion wrappers
 │       ├── extract.py        # PDF/DOCX/XLSX/HTML/TXT extractors
+│       ├── errors.py         # 38 structured error codes (LFL-XNNN)
 │       └── pipeline.py       # 9-stage ingestion orchestration
 ├── ratings/                  # Community quality ratings
 ├── ingestion/                # Drop folder for raw documents (gitignored)
@@ -163,7 +164,13 @@ lfl validate corpora/<domain>
 lfl validate corpora/<domain> --strict
 ```
 
-This checks YAML frontmatter, required metadata fields, sources.json schema, and cross-references between chunk source_ids and sources.json. Fix any reported errors before submitting.
+This checks YAML frontmatter, required metadata fields, sources.json schema, and cross-references between chunk source_ids and sources.json. Validation errors are reported with structured [LFL error codes](../docs/ERROR_CODES.md) (e.g., `[LFL-K300]` for missing frontmatter). Fix any reported errors before submitting.
+
+To diagnose an error code:
+
+```bash
+lfl explain-error LFL-K302
+```
 
 ---
 
@@ -213,6 +220,7 @@ This outputs a directory compatible with `datasets.load_from_disk()`.
 1. Push your branch to your fork.
 2. Open a PR against the `main` branch.
 3. Fill in the PR template completely — incomplete templates will be returned.
-4. A maintainer will review your corpus for quality and license compliance.
+4. Ensure your session summary is updated for today (`docs/Session Reviews/YYYY/MM-month/SESSION_SUMMARY_<MMMDD>_<YYYY>.md`) — see [Documentation SOP](../docs/SOP/DOCUMENTATION_SOP.md#-session-summary-updates-required).
+5. A maintainer will review your corpus for quality and license compliance.
 
 PRs that include AI-generated source material, missing provenance, or invalid frontmatter will be closed without merge.

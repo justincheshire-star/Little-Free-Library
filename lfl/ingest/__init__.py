@@ -21,6 +21,14 @@ from .types import (
     IngestionManifest,
 )
 
+from .errors import (
+    IngestionError,
+    Severity,
+    ERROR_CATALOGUE,
+    lookup_error_code,
+    format_error_reference,
+)
+
 from .pipeline import ingest_directory
 
 __all__ = [
@@ -29,6 +37,11 @@ __all__ = [
     "ExtractedTable",
     "IngestionResult",
     "IngestionManifest",
+    "IngestionError",
+    "Severity",
+    "ERROR_CATALOGUE",
+    "lookup_error_code",
+    "format_error_reference",
     "ingest_directory",
 ]
 

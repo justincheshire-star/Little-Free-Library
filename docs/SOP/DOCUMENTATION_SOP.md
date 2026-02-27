@@ -2,8 +2,8 @@
 
 **Status**: Active  
 **Owner**: Repository Maintainers  
-**Version**: 2.0.0  
-**Last Updated**: February 25, 2026  
+**Version**: 2.1.0  
+**Last Updated**: February 27, 2026  
 **Trigger**: Before every commit  
 **RACI**: R=Contributor, A=Maintainer, C=Reviewers, I=Community  
 **SLA**: Docs updated before merge
@@ -20,6 +20,7 @@ Keep documentation synchronized with corpus changes. Ensures that README, corpus
 - Missing license info → legal risk → block merge on missing license
 - Outdated README → poor onboarding → require README updates for new corpora
 - Missing provenance → trust issues → require sources.json completeness
+- Missing session summary → lost context between sessions → require session summary before commit
 
 ---
 
@@ -41,6 +42,7 @@ Use this mapping to identify which documents require updates:
 | **Setup/installation changes** | `README.md`, `contributors/ONBOARDING.md`   | `contributors/CONTRIBUTING_GUIDE.md` | —                      |
 | **SOP updates**                | Relevant `docs/SOP/*.md`                    | `docs/SOP/INDEX.md`             | —                          |
 | **KB/documentation changes**   | Affected KB docs                            | `docs/KB/README.md`             | —                          |
+| **Any commit (all types)**     | Session summary for current date            | —                               | —                          |
 
 ### Document Priority Tiers
 
@@ -73,6 +75,9 @@ Tier 4 (Guides & Policies):
 Tier 5 (Reference & SOPs):
 ├── docs/SOP/INDEX.md            # SOP directory
 └── docs/SOP/*.md                # Individual SOPs
+
+Tier 6 (Session History — Required):
+└── docs/Session Reviews/YYYY/MM-month/SESSION_SUMMARY_*.md  # Session work log
 ```
 
 ### Sweep Execution Algorithm
@@ -91,7 +96,12 @@ FOR each contribution IN session_work:
 AFTER all contributions processed:
     1. Verify all changes are consistent
     2. Run validation scripts
-    3. Commit with comprehensive message listing all docs updated
+    3. Update or create today's session summary (Tier 6 — required)
+       a. Path: docs/Session Reviews/YYYY/MM-month/SESSION_SUMMARY_<MMMDD>_<YYYY>.md
+       b. One file per day — amend existing file if it exists
+       c. Use SESSION_REVIEW_TEMPLATE.md format exactly
+       d. Record: work completed, decisions, validation results, next steps
+    4. Commit with comprehensive message listing all docs updated
 ```
 
 ---
@@ -300,9 +310,106 @@ Before committing:
 - [ ] Cross-references verified
 - [ ] Examples updated
 
+### For All Contributions (Required)
+
+- [ ] Session summary exists for today (`SESSION_SUMMARY_<MMMDD>_<YYYY>.md`)
+  - One file per day — amend if it already exists, never create a second
+  - Must follow [SESSION_REVIEW_TEMPLATE.md](SESSION_REVIEW_TEMPLATE.md) format exactly
+  - Work Completed, Key Decisions, and Validation Results sections are current
+  - Next Steps and Session Metrics updated before final commit of the day
+
 ---
 
-## 🔍 Documentation Validation
+## � Session Summary Updates (Required)
+
+A session summary is **mandatory** for every day that work is performed. Session summaries provide continuity across work sessions and serve as the authoritative record of what changed and why.
+
+### Rules
+
+1. **One file per day** — Exactly one summary file per calendar day, regardless of how many sessions occur that day.
+2. **Strict nomenclature** — Files must follow the naming convention exactly. No variations.
+3. **Amend as you go** — Do not wait until the end of the day. Update the summary incrementally as work progresses throughout each session. Every meaningful milestone, decision, or completion should be recorded immediately.
+4. **Template required** — Every summary must use the format defined in [SESSION_REVIEW_TEMPLATE.md](SESSION_REVIEW_TEMPLATE.md). Do not improvise structure.
+
+### File Naming Convention
+
+```
+SESSION_SUMMARY_<MMM><DD>_<YYYY>.md
+```
+
+- `<MMM>` — Three-letter month abbreviation, UPPERCASE (e.g., `FEB`, `MAR`, `APR`)
+- `<DD>` — Two-digit day of month (e.g., `01`, `15`, `27`)
+- `<YYYY>` — Four-digit year
+
+**Examples:**
+- `SESSION_SUMMARY_FEB27_2026.md` ✅
+- `SESSION_SUMMARY_MAR01_2026.md` ✅
+- `session_summary_feb27_2026.md` ❌ (wrong case)
+- `SESSION_SUMMARY_2026-02-27.md` ❌ (wrong date format)
+- `SESSION_SUMMARY_FEB27_2026_v2.md` ❌ (no versioned files — amend the original)
+
+### Directory Structure
+
+```
+docs/Session Reviews/
+└── YYYY/
+    └── MM-month/            # e.g., 02-february (zero-padded, lowercase month)
+        ├── SESSION_SUMMARY_FEB25_2026.md
+        ├── SESSION_SUMMARY_FEB26_2026.md
+        └── SESSION_SUMMARY_FEB27_2026.md
+```
+
+Directory naming: `<NN>-<month>` where `<NN>` is zero-padded month number and `<month>` is lowercase full month name.
+
+### Amend-as-you-go Workflow
+
+```
+Session starts:
+    1. Check if today's summary file exists
+       - YES → Open it, continue amending
+       - NO  → Create from SESSION_REVIEW_TEMPLATE.md
+    2. Fill in session goals and initial context
+
+During work:
+    3. After each meaningful milestone → amend Work Completed section
+    4. After each key decision → amend Key Decisions section
+    5. After resolving an issue → amend Blockers & Issues section
+
+Before commit:
+    6. Update Validation Results with latest output
+    7. Update Commits section
+    8. Update Next Steps
+    9. Update Session Metrics table
+    10. Set session Status field
+
+Multiple sessions in one day:
+    - Use segment headings (e.g., "### Segment 1: ...", "### Segment 2: ...")
+    - Append new segments — never overwrite earlier work from the same day
+```
+
+### Required Content
+
+Every session summary must include (per [SESSION_REVIEW_TEMPLATE.md](SESSION_REVIEW_TEMPLATE.md)):
+
+| Section | Required | When to Update |
+|---------|----------|----------------|
+| Date, Contributor, Duration, Status | Yes | Session start + end |
+| Session Goals | Yes | Session start |
+| Work Completed | Yes | After each milestone |
+| Key Decisions | Yes (if any) | Immediately when decided |
+| Blockers & Issues | Yes (if any) | As encountered / resolved |
+| Validation Results | Yes | Before commit |
+| Commits | Yes | After each commit |
+| Next Steps | Yes | Before ending session |
+| Session Metrics | Yes | Before ending session |
+
+### Failure Mode
+
+A commit without a corresponding session summary for the current date breaks the project's historical record and makes it harder for future contributors (or future sessions) to understand context. Treat this the same as committing without updating CHANGELOG.md — it is a **blocking documentation gap**.
+
+---
+
+## �🔍 Documentation Validation
 
 ### Automated Checks
 

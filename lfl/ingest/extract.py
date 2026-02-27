@@ -2,12 +2,27 @@
 Format-specific content extractors.
 
 Each extractor returns an ExtractedDoc with text, tables, and metadata.
+Structured error codes are attached via the `structured_errors` field.
 """
 
 from __future__ import annotations
 
 from pathlib import Path
 
+from .errors import (
+    E100_no_content_extracted,
+    E101_pdf_stream_corruption,
+    E102_ocr_unavailable,
+    E103_partial_extraction,
+    E104_pymupdf_not_installed,
+    E105_pdfplumber_not_installed,
+    E106_extractor_exception,
+    E110_docx_not_installed,
+    E111_pandas_not_installed,
+    E112_bs4_not_installed,
+    E113_encoding_fallback,
+    IngestionError,
+)
 from .types import ExtractedDoc, ExtractedTable
 
 
@@ -37,27 +52,44 @@ def extract_pdf(path: Path) -> ExtractedDoc:
     1. Try PyMuPDF (fast)
     2. Fallback to pdfplumber (better tables)
     3. Fallback to OCR (if available and text empty)
+    
+    Emits structured error codes (LFL-E1xx) for each failure mode.
     """
     text = ""
-    tables = []
+    tables: list[ExtractedTable] = []
     method = "native"
-    warnings = []
+    warnings: list[str] = []
+    errors: list[IngestionError] = []
+    page_count = 0
+    zlib_errors_detected = False
     
     # Try PyMuPDF first
     try:
         import fitz  # PyMuPDF
         
         doc = fitz.open(path)
+        page_count = doc.page_count
         pages = []
         for page in doc:
             pages.append(page.get_text())
         text = "\n\n".join(pages)
         doc.close()
         
+        # Detect partial extraction (some pages blank)
+        non_empty = sum(1 for p in pages if p.strip())
+        if non_empty > 0 and non_empty < page_count:
+            err = E103_partial_extraction(str(path), non_empty, page_count)
+            errors.append(err)
+            warnings.append(err.cli_message())
+        
     except ImportError:
-        warnings.append("PyMuPDF not installed (pip install pymupdf)")
+        err = E104_pymupdf_not_installed(str(path))
+        errors.append(err)
+        warnings.append(err.cli_message())
     except Exception as e:
-        warnings.append(f"PyMuPDF extraction failed: {e}")
+        err = E106_extractor_exception(str(path), "PyMuPDF", str(e))
+        errors.append(err)
+        warnings.append(err.cli_message())
     
     # Fallback to pdfplumber if no text extracted
     if not text.strip():
@@ -65,6 +97,8 @@ def extract_pdf(path: Path) -> ExtractedDoc:
             import pdfplumber
             
             with pdfplumber.open(path) as pdf:
+                if not page_count:
+                    page_count = len(pdf.pages)
                 pages = []
                 for page in pdf.pages:
                     pages.append(page.extract_text() or "")
@@ -72,28 +106,71 @@ def extract_pdf(path: Path) -> ExtractedDoc:
                     # Extract tables
                     for table in page.extract_tables():
                         if table:
-                            # Convert to markdown-ish
                             md_table = _table_to_markdown(table)
                             tables.append(ExtractedTable(
                                 sheet_name=None,
-                                data=[],  # TODO: convert to dict format
+                                data=[],
                                 markdown=md_table,
                             ))
                 
                 text = "\n\n".join(pages)
         
         except ImportError:
-            warnings.append("pdfplumber not installed (pip install pdfplumber)")
+            err = E105_pdfplumber_not_installed(str(path))
+            errors.append(err)
+            warnings.append(err.cli_message())
         except Exception as e:
-            warnings.append(f"pdfplumber extraction failed: {e}")
+            err = E106_extractor_exception(str(path), "pdfplumber", str(e))
+            errors.append(err)
+            warnings.append(err.cli_message())
     
     # OCR fallback if still empty
     if not text.strip():
         try:
             text = extract_pdf_ocr(path)
             method = "ocr"
+        except ImportError as e:
+            err = E102_ocr_unavailable(str(path), str(e))
+            errors.append(err)
+            warnings.append(err.cli_message())
         except Exception as e:
-            warnings.append(f"OCR fallback unavailable: {e}")
+            err = E102_ocr_unavailable(str(path), str(e))
+            errors.append(err)
+            warnings.append(err.cli_message())
+    
+    # If still no content after all fallbacks, diagnose the root cause
+    if not text.strip() and not tables:
+        # Check for zlib stream corruption (the specific case from the
+        # corrupt Hacker's Guide PDF)
+        try:
+            import fitz
+            doc = fitz.open(path)
+            if doc.page_count > 0:
+                page = doc[0]
+                imgs = page.get_images(full=True)
+                if imgs:
+                    try:
+                        raw = doc.extract_image(imgs[0][0])
+                        # If raw image bytes start with damaged data,
+                        # this is stream corruption
+                        if raw and raw.get("image"):
+                            header = raw["image"][:4]
+                            # Valid JPEG: FF D8 FF; Valid PNG: 89 50 4E 47
+                            if (header[:2] != b'\xff\xd8' and
+                                    header[:4] != b'\x89PNG'):
+                                zlib_errors_detected = True
+                    except Exception:
+                        zlib_errors_detected = True
+            doc.close()
+        except Exception:
+            pass
+        
+        if zlib_errors_detected:
+            err = E101_pdf_stream_corruption(str(path), page_count)
+        else:
+            err = E100_no_content_extracted(str(path))
+        errors.append(err)
+        warnings.append(err.cli_message())
     
     return ExtractedDoc(
         text=text,
@@ -103,6 +180,7 @@ def extract_pdf(path: Path) -> ExtractedDoc:
         extraction_method=method,
         tables=tables,
         warnings=warnings,
+        structured_errors=errors,
     )
 
 
@@ -138,7 +216,8 @@ def extract_docx(path: Path) -> ExtractedDoc:
     try:
         from docx import Document
     except ImportError:
-        raise ImportError("python-docx not installed (pip install python-docx)")
+        err = E110_docx_not_installed()
+        raise ImportError(err.cli_message()) from None
     
     doc = Document(path)
     
@@ -157,7 +236,7 @@ def extract_docx(path: Path) -> ExtractedDoc:
             md_table = _table_to_markdown(rows)
             tables.append(ExtractedTable(
                 sheet_name=None,
-                data=[],  # TODO: convert to dict format
+                data=[],
                 markdown=md_table,
             ))
     
@@ -176,7 +255,8 @@ def extract_xlsx(path: Path) -> ExtractedDoc:
     try:
         import pandas as pd
     except ImportError:
-        raise ImportError("pandas not installed (pip install pandas openpyxl)")
+        err = E111_pandas_not_installed()
+        raise ImportError(err.cli_message()) from None
     
     sheets = pd.read_excel(path, sheet_name=None, engine='openpyxl')
     
@@ -211,7 +291,8 @@ def extract_html(path: Path) -> ExtractedDoc:
     try:
         from bs4 import BeautifulSoup
     except ImportError:
-        raise ImportError("beautifulsoup4 not installed (pip install beautifulsoup4 lxml)")
+        err = E112_bs4_not_installed()
+        raise ImportError(err.cli_message()) from None
     
     with open(path, 'r', encoding='utf-8') as f:
         html = f.read()
@@ -245,11 +326,16 @@ def extract_html(path: Path) -> ExtractedDoc:
 
 def extract_plain_text(path: Path) -> ExtractedDoc:
     """Extract from plain text files."""
+    errors: list[IngestionError] = []
+    warnings: list[str] = []
+    used_encoding = "utf-8"
+    
     # Try different encodings
     for encoding in ['utf-8', 'latin-1', 'cp1252']:
         try:
             with open(path, 'r', encoding=encoding) as f:
                 text = f.read()
+            used_encoding = encoding
             break
         except UnicodeDecodeError:
             continue
@@ -257,6 +343,12 @@ def extract_plain_text(path: Path) -> ExtractedDoc:
         # Last resort: binary read with replace
         with open(path, 'rb') as f:
             text = f.read().decode('utf-8', errors='replace')
+        used_encoding = "binary-replace"
+    
+    if used_encoding != "utf-8":
+        err = E113_encoding_fallback(str(path), used_encoding)
+        errors.append(err)
+        warnings.append(err.cli_message())
     
     return ExtractedDoc(
         text=text,
@@ -264,6 +356,8 @@ def extract_plain_text(path: Path) -> ExtractedDoc:
         source_path=path,
         detected_type='text',
         extraction_method='native',
+        warnings=warnings,
+        structured_errors=errors,
     )
 
 

@@ -567,20 +567,24 @@ def save_chunk_to_markdown(chunk: TextChunk, output_path: Path) -> None:
     """
     md = chunk.metadata
     
+    # Escape double quotes inside string values for valid YAML
+    def _esc(val: str) -> str:
+        return str(val).replace('\\', '\\\\').replace('"', '\\"')
+    
     frontmatter = f"""---
-title: "{md.title}"
-domain: "{md.domain}"
-subdomain: "{md.subdomain}"
-source: "{md.source}"
-source_license: "{md.source_license}"
-source_id: "{md.source_id}"
-source_path: "{md.source_path}"
-retrieved_at: "{md.retrieved_at}"
-verified: "{md.verified}"
+title: "{_esc(md.title)}"
+domain: "{_esc(md.domain)}"
+subdomain: "{_esc(md.subdomain)}"
+source: "{_esc(md.source)}"
+source_license: "{_esc(md.source_license)}"
+source_id: "{_esc(md.source_id)}"
+source_path: "{_esc(md.source_path)}"
+retrieved_at: "{_esc(md.retrieved_at)}"
+verified: "{_esc(md.verified)}"
 importance: {md.importance}
 tags: {md.tags}
-version: "{md.version}"
-content_hash: "{md.content_hash}"
+version: "{_esc(md.version)}"
+content_hash: "{_esc(md.content_hash)}"
 ---
 
 {chunk.content}

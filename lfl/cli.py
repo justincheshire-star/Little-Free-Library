@@ -263,6 +263,49 @@ def cmd_version() -> None:
     typer.echo(f"lfl version {__version__}")
 
 
+@app.command("error-codes")
+def cmd_error_codes() -> None:
+    """List all ingestion error codes with summaries."""
+    from .ingest.errors import ERROR_CATALOGUE
+
+    typer.echo(f"\n{'Code':<12} {'Summary':<45} Resolution")
+    typer.echo(f"{'─' * 12} {'─' * 45} {'─' * 50}")
+    for code, (summary, resolution) in sorted(ERROR_CATALOGUE.items()):
+        typer.echo(f"{code:<12} {summary:<45} {resolution}")
+    typer.echo(f"\n  Total: {len(ERROR_CATALOGUE)} error codes\n")
+
+
+@app.command("explain-error")
+def cmd_explain_error(
+    code: str = typer.Argument(..., help="Error code to explain (e.g. LFL-E101)"),
+) -> None:
+    """Show detailed explanation and resolution for an error code."""
+    from .ingest.errors import lookup_error_code, ERROR_CATALOGUE
+
+    result = lookup_error_code(code)
+    if result is None:
+        typer.echo(f"Unknown error code: {code}", err=True)
+        typer.echo(f"Run 'lfl error-codes' to see all {len(ERROR_CATALOGUE)} codes.")
+        raise typer.Exit(1)
+
+    summary, resolution = result
+    typer.echo(f"\n  Code:       {code.upper()}")
+    typer.echo(f"  Summary:    {summary}")
+    typer.echo(f"  Resolution: {resolution}")
+
+    # Try to find the factory function for more detail
+    try:
+        from .ingest import errors as _err_mod
+        for name in dir(_err_mod):
+            fn = getattr(_err_mod, name)
+            if callable(fn) and name[0].isupper() and name.startswith(code.replace("LFL-", "").split("_")[0][:4]):
+                pass  # Factory exists but needs args; we can't call it generically
+    except Exception:
+        pass
+
+    typer.echo()
+
+
 def main():
     """Entry point for the lfl CLI."""
     app()

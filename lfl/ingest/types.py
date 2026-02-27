@@ -41,6 +41,7 @@ class ExtractedDoc:
     extraction_method: Literal['native', 'converted', 'ocr']
     tables: list[ExtractedTable] = field(default_factory=list)
     warnings: list[str] = field(default_factory=list)
+    structured_errors: list = field(default_factory=list)  # list[IngestionError]
     
 
 @dataclass
@@ -54,7 +55,9 @@ class IngestionResult:
     chunks_produced: int
     status: Literal['success', 'failed']
     error: str | None = None
+    error_code: str | None = None              # e.g. "LFL-E101"
     warnings: list[str] = field(default_factory=list)
+    structured_errors: list[dict] = field(default_factory=list)  # IngestionError.to_dict()
     
 
 @dataclass
@@ -103,7 +106,9 @@ class IngestionManifest:
                     'chunks_produced': r.chunks_produced,
                     'status': r.status,
                     'error': r.error,
+                    'error_code': r.error_code,
                     'warnings': r.warnings,
+                    'structured_errors': r.structured_errors,
                 }
                 for r in self.results
             ],
