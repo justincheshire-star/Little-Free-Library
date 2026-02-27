@@ -288,7 +288,7 @@ python scripts/publish_to_huggingface.py corpora/programming
 - [ ] Pages conversion path tested (requires LibreOffice installed)
 - [x] Chunks written with valid YAML frontmatter
 - [x] Validation passes after ingestion
-- [x] Embedding generation works (`--embed` flag)
+- [x] Embedding generation works (`--embed` flag) — **Bug fixed Feb 27**: profile_id, corpus path, and encode() method corrected
 - [x] Manifest JSON written correctly
 - [x] Duplicate-skip idempotency works
 - [x] Documentation complete (spec, README, QUICKSTART, CHANGELOG)

@@ -71,6 +71,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Block images and archives (often ingestion input)
   - Preserve tracked model files (LFS) and curated corpora
 
+### Fixed
+
+- **Embedding integration in `lfl ingest --embed`** — Three bugs in `pipeline.py` Stage 8:
+  - `EmbeddingModel` received `EmbeddingProfile` object instead of `profile_id` string
+  - `load_corpus()` received `str` path instead of `Path` (caused `str / str` TypeError)
+  - Called `model.embed()` instead of correct `model.encode()` method
+  - All three verified fixed via end-to-end test (TXT + HTML → 384-dim vectors)
+
+---
+
 #### Embedded Models (~796 MB)
 
 - **FastEmbed ONNX Models** (~273 MB)

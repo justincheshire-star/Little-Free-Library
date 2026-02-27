@@ -401,16 +401,14 @@ def ingest_directory(
     if embed:
         try:
             from ..embeddings import EmbeddingModel, save_embeddings
-            from ..profiles import load_profile
             from ..validation import load_corpus
             
             print(f"\n🧠 Generating embeddings (profile={profile}) …")
-            emb_profile = load_profile(profile)
-            model = EmbeddingModel(emb_profile)
+            model = EmbeddingModel(profile_id=profile)
             
-            corpus_chunks = load_corpus(str(chunks_dir))
-            texts = [c.text for c in corpus_chunks]
-            vectors = model.embed(texts)
+            corpus_chunks = load_corpus(corpus_dir)
+            texts = [c.body for c in corpus_chunks]
+            vectors = model.encode(texts)
             
             emb_dir = corpus_dir / "embeddings"
             emb_dir.mkdir(parents=True, exist_ok=True)
