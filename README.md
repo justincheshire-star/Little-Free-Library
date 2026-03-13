@@ -19,7 +19,7 @@ The goal is simple: vetted, high-quality knowledge bases that any developer — 
 
 ## The Library
 
-Corpora are organized by domain. Each is pre-chunked, pre-embedded, and ready to ingest.
+Corpora are organized by domain. Each is pre-chunked, pre-embedded, and ready to ingest, examples listed below.
 
 | Domain | Status | Version | License |
 |--------|--------|---------|---------|
